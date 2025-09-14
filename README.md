@@ -4,7 +4,14 @@ Advanced Discord bot for the EngelFineDesign community featuring comprehensive m
 
 ## ✨ Features
 
-### 🔰 Member Verification System
+### �️ Dynamic Roadmap System
+- **Real-time progress tracking** with visual progress bars for all development phases
+- **Automated announcements** when new features are completed and go live
+- **Transparent development** - community can see exactly what's being worked on
+- **Phase-based organization** from Foundation through advanced Marketplace features
+- **Interactive roadmap display** with detailed timelines and dependencies
+
+### �🔰 Member Verification System
 - **Multi-step verification flow** with interactive buttons and select menus
 - **Industry role assignment** for Jewelers, Lapidarists, CAD Designers, and Dealers
 - **Service specialization tracking** (e.g., Custom Jewelry, Repair, CAD Design)
@@ -97,6 +104,13 @@ This bot features **automatic deployment** - simply push to the `main` branch an
 | `/verify` | Start member verification process | Everyone |
 | `/services @user` | Look up user's services and roles | Everyone |
 | `/setup-verify` | Create interactive verification message | Admin only |
+| **Roadmap Commands** | | |
+| `/roadmap show` | Display development roadmap with progress | Everyone |
+| `/roadmap phase` | Get detailed information about a specific phase | Everyone |
+| `/roadmap stats` | Show roadmap statistics and recent updates | Everyone |
+| `/roadmap-admin init` | Initialize roadmap data from documentation | Admin only |
+| `/roadmap-admin update-phase` | Update phase status and trigger announcements | Admin only |
+| `/roadmap-admin setup-auto-updates` | Configure automated roadmap updates | Admin only |
 
 ## 🏗️ Architecture
 
@@ -107,12 +121,20 @@ This bot features **automatic deployment** - simply push to the `main` branch an
 │   │   ├── ping.js              # Simple ping command
 │   │   ├── verify.js            # Complex verification flow
 │   │   ├── services.js          # User lookup functionality
-│   │   └── setup-verify.js      # Admin setup command
+│   │   ├── setup-verify.js      # Admin setup command
+│   │   ├── roadmap.js           # Community roadmap display
+│   │   └── roadmap-admin.js     # Roadmap management (admin)
 │   ├── 📁 lib/                   # Shared utilities
 │   │   ├── constants.js         # Database and role constants
-│   │   └── database.js          # MongoDB connection wrapper
+│   │   ├── database.js          # MongoDB connection wrapper
+│   │   ├── roadmapTracker.js    # Roadmap database operations
+│   │   └── roadmapAutomation.js # Automated progress updates
 │   ├── webhook.js               # Shopify webhook handler
 │   └── index.js                 # Main bot entry point
+├── 📄 docs/                      # Documentation
+│   ├── ROADMAP.md              # Development roadmap overview
+│   ├── ROADMAP_SETUP.md        # Roadmap system setup guide
+│   └── phases/                 # Detailed phase trackers
 ├── 📄 deploy-commands.js         # Command registration script
 ├── 📄 setup-roles.js            # Discord role creation
 ├── 📄 deploy-webhook.cjs         # GitHub deployment webhook
