@@ -4,6 +4,7 @@ import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import dotenv from 'dotenv';
 import { setupWebhookServer } from './webhook.js';
+import RoadmapAutomation from './lib/roadmapAutomation.js';
 dotenv.config();
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
@@ -17,8 +18,13 @@ for (const file of commandFiles) {
   client.commands.set(commandModule.default.data.name, commandModule.default);
 }
 
-client.once(Events.ClientReady, () => {
+client.once(Events.ClientReady, async () => {
   console.log(`Logged in as ${client.user.tag}`);
+  
+  // Initialize roadmap automation
+  const roadmapAutomation = new RoadmapAutomation(client);
+  await roadmapAutomation.init();
+  client.roadmapAutomation = roadmapAutomation;
   
   // Start webhook server
   setupWebhookServer(client);

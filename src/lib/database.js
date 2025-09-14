@@ -135,4 +135,70 @@ class Database {
     }
 }
 
-export const db = new Database();
+// Create database instance only when needed to avoid environment variable issues
+let dbInstance = null;
+
+export const db = {
+    get instance() {
+        if (!dbInstance) {
+            dbInstance = new Database();
+        }
+        return dbInstance;
+    },
+    
+    async database() {
+        return await this.instance.connect();
+    },
+    
+    async connect() {
+        return await this.instance.connect();
+    },
+    
+    async users() {
+        return await this.instance.users();
+    },
+    
+    async collectors() {
+        return await this.instance.collectors();
+    },
+    
+    async repairs() {
+        return await this.instance.repairs();
+    },
+    
+    async tasks() {
+        return await this.instance.tasks();
+    },
+    
+    async materials() {
+        return await this.instance.materials();
+    },
+    
+    async processes() {
+        return await this.instance.processes();
+    },
+    
+    async contactRequests() {
+        return await this.instance.contactRequests();
+    },
+    
+    async customTickets() {
+        return await this.instance.customTickets();
+    },
+    
+    async inventory() {
+        return await this.instance.inventory();
+    },
+    
+    async adminSettings() {
+        return await this.instance.adminSettings();
+    },
+    
+    async adminSettingsAudit() {
+        return await this.instance.adminSettingsAudit();
+    },
+    
+    async dbRepairTasks() {
+        return await this.instance.dbRepairTasks();
+    }
+};

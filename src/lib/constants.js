@@ -17,6 +17,11 @@ const Constants = {
     CUSTOM_TICKETS_COLLECTION: 'customTickets',
     INVENTORY_COLLECTION: 'inventory',
     
+    // Roadmap Collections
+    ROADMAP_PHASES_COLLECTION: 'roadmapPhases',
+    ROADMAP_TASKS_COLLECTION: 'roadmapTasks',
+    ROADMAP_UPDATES_COLLECTION: 'roadmapUpdates',
+    
     // Legacy/Compatibility (to be phased out)
     REPAIRTASKS_COLLECTION: 'repairTasks', // Use TASKS_COLLECTION instead
     
