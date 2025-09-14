@@ -4,4 +4,4 @@
 // ...existing code moved to src/index.js...
 
 
-// comment to test auto deploy
+// comment to test auto deployment
