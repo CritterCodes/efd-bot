@@ -12,11 +12,12 @@ The roadmap system provides:
 
 ## 🚀 Initial Setup
 
-### 1. Create Roadmap Channel
-```
-Create a new channel called #roadmap or #development-progress
-Set permissions so everyone can view but only admins can post
-```
+### 1. Channel Setup
+The following channels are configured:
+- **Roadmap Channel**: `1416844033493565643` (#roadmap)
+- **Announcements Channel**: `1416592963709964308` (#announcements)
+
+Set permissions so everyone can view but only admins can post in the roadmap channel.
 
 ### 2. Initialize Roadmap Data
 ```
@@ -26,11 +27,11 @@ This loads all phase data from the documentation into the database.
 
 ### 3. Set Up Auto-Updates
 ```
-/roadmap-admin setup-auto-updates roadmap_channel:#roadmap announcements_channel:#announcements
+/roadmap-admin setup-auto-updates roadmap_channel:1416844033493565643 announcements_channel:1416592963709964308
 ```
 This configures:
-- Automatic roadmap updates in #roadmap channel
-- Phase completion announcements in #announcements channel
+- Automatic roadmap updates in the roadmap channel
+- Phase completion announcements in the announcements channel
 - Pinned roadmap message that stays updated
 
 ## 📋 Commands Available
