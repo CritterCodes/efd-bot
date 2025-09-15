@@ -9,7 +9,11 @@
     "dev": "node src/index.js",
     "deploy-commands": "node deploy-commands.js",
     "setup-roles": "node setup-roles.js",
-    "setup-database": "node setup-database.js"
+    "setup-database": "node setup-database.js",
+    "docs:generate": "node scripts/generate-docs.js",
+    "docs:serve": "node test-docs-server.js",
+    "docs:update": "node scripts/update-docs.js && echo 'Documentation updated! Available at http://localhost:3000/api/docs/'",
+    "docs:simple": "node scripts/update-docs.js"
   },
   "author": "",
   "license": "MIT",

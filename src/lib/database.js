@@ -76,6 +76,11 @@ class Database {
         return this._instance.collection(Constants.USERS_COLLECTION);
     }
 
+    async dbDiscordUsers() {
+        await this.connect();
+        return this._instance.collection(Constants.DISCORD_USERS_COLLECTION);
+    }
+
     async dbRepairs() {
         await this.connect();
         return this._instance.collection(Constants.REPAIRS_COLLECTION);
@@ -127,6 +132,95 @@ class Database {
         await this.connect();
         return this._instance.collection(Constants.INVENTORY_COLLECTION);
     }
+    
+    // Roadmap Collections
+    async dbRoadmapPhases() {
+        await this.connect();
+        return this._instance.collection(Constants.ROADMAP_PHASES_COLLECTION);
+    }
+    
+    async dbRoadmapTasks() {
+        await this.connect();
+        return this._instance.collection(Constants.ROADMAP_TASKS_COLLECTION);
+    }
+    
+    async dbRoadmapUpdates() {
+        await this.connect();
+        return this._instance.collection(Constants.ROADMAP_UPDATES_COLLECTION);
+    }
+
+    // GEMS Collections
+    async dbGemsBalances() {
+        await this.connect();
+        return this._instance.collection(Constants.GEMS_BALANCES_COLLECTION);
+    }
+
+    async dbGemsTransactions() {
+        await this.connect();
+        return this._instance.collection(Constants.GEMS_TRANSACTIONS_COLLECTION);
+    }
+
+    async dbGemsSettings() {
+        await this.connect();
+        return this._instance.collection(Constants.GEMS_SETTINGS_COLLECTION);
+    }
+
+    // GEMS Database Initialization
+    async initializeGemsCollections() {
+        await this.connect();
+        
+        try {
+            // Create indexes for gems_balances collection
+            const balancesCollection = await this.dbGemsBalances();
+            await balancesCollection.createIndex({ discordId: 1 }, { unique: true });
+            await balancesCollection.createIndex({ balance: -1 }); // For leaderboards
+            await balancesCollection.createIndex({ lifetimeEarned: -1 }); // For top earners
+            await balancesCollection.createIndex({ lastActivity: -1 }); // For activity tracking
+            
+            // Create indexes for gems_transactions collection
+            const transactionsCollection = await this.dbGemsTransactions();
+            await transactionsCollection.createIndex({ discordId: 1, timestamp: -1 }); // User transaction history
+            await transactionsCollection.createIndex({ type: 1, timestamp: -1 }); // Transaction type queries
+            await transactionsCollection.createIndex({ source: 1, timestamp: -1 }); // Source tracking
+            await transactionsCollection.createIndex({ timestamp: -1 }); // Recent transactions
+            await transactionsCollection.createIndex({ relatedUserId: 1 }, { sparse: true }); // For tips/transfers
+            
+            // Create indexes for gems_settings collection
+            const settingsCollection = await this.dbGemsSettings();
+            await settingsCollection.createIndex({ settingKey: 1 }, { unique: true });
+            await settingsCollection.createIndex({ category: 1 }); // Settings by category
+            
+            console.log("✅ GEMS collection indexes created successfully");
+            
+            // Initialize default settings if they don't exist
+            await this.initializeGemsDefaultSettings();
+            
+        } catch (error) {
+            console.error("❌ Error initializing GEMS collections:", error);
+            throw error;
+        }
+    }
+    
+    async initializeGemsDefaultSettings() {
+        const settingsCollection = await this.dbGemsSettings();
+        
+        for (const [key, config] of Object.entries(Constants.GEMS_DEFAULT_SETTINGS)) {
+            const existingSetting = await settingsCollection.findOne({ settingKey: key });
+            
+            if (!existingSetting) {
+                await settingsCollection.insertOne({
+                    settingKey: key,
+                    value: config.value,
+                    description: config.description,
+                    category: config.category,
+                    updatedBy: 'system',
+                    updatedAt: new Date()
+                });
+            }
+        }
+        
+        console.log("✅ GEMS default settings initialized");
+    }
 
     // Legacy alias for backward compatibility
     async dbRepairTasks() {
@@ -155,50 +249,85 @@ export const db = {
     },
     
     async users() {
-        return await this.instance.users();
+        return await this.instance.dbUsers();
+    },
+    
+    async discordUsers() {
+        return await this.instance.dbDiscordUsers();
     },
     
     async collectors() {
-        return await this.instance.collectors();
+        return await this.instance.dbCollectors();
     },
     
     async repairs() {
-        return await this.instance.repairs();
+        return await this.instance.dbRepairs();
     },
     
     async tasks() {
-        return await this.instance.tasks();
+        return await this.instance.dbTasks();
     },
     
     async materials() {
-        return await this.instance.materials();
+        return await this.instance.dbMaterials();
     },
     
     async processes() {
-        return await this.instance.processes();
+        return await this.instance.dbProcesses();
     },
     
     async contactRequests() {
-        return await this.instance.contactRequests();
+        return await this.instance.dbContactRequests();
     },
     
     async customTickets() {
-        return await this.instance.customTickets();
+        return await this.instance.dbCustomTickets();
     },
     
     async inventory() {
-        return await this.instance.inventory();
+        return await this.instance.dbInventory();
     },
     
     async adminSettings() {
-        return await this.instance.adminSettings();
+        return await this.instance.dbAdminSettings();
     },
     
     async adminSettingsAudit() {
-        return await this.instance.adminSettingsAudit();
+        return await this.instance.dbAdminSettingsAudit();
     },
     
     async dbRepairTasks() {
         return await this.instance.dbRepairTasks();
+    },
+    
+    // Roadmap Collections
+    async roadmapPhases() {
+        return await this.instance.dbRoadmapPhases();
+    },
+    
+    async roadmapTasks() {
+        return await this.instance.dbRoadmapTasks();
+    },
+    
+    async roadmapUpdates() {
+        return await this.instance.dbRoadmapUpdates();
+    },
+    
+    // GEMS Collections
+    async gemsBalances() {
+        return await this.instance.dbGemsBalances();
+    },
+    
+    async gemsTransactions() {
+        return await this.instance.dbGemsTransactions();
+    },
+    
+    async gemsSettings() {
+        return await this.instance.dbGemsSettings();
+    },
+    
+    // GEMS Initialization
+    async initializeGems() {
+        return await this.instance.initializeGemsCollections();
     }
 };

@@ -1,5 +1,6 @@
 import express from 'express';
 import crypto from 'crypto';
+import docsRouter from '../routes/docs.js';
 
 const JEWELRY_CHANNEL_ID = '1416792269851463742';
 const GEMSTONES_CHANNEL_ID = '1416792343838724167';
@@ -69,67 +70,53 @@ function formatProductMessage(product) {
 export function setupWebhookServer(client) {
   const app = express();
   
-  // Middleware to capture raw body for webhook verification
-  app.use('/webhook/shopify', express.raw({ type: 'application/json' }));
+  // Enhanced middleware
+  app.use(express.raw({ type: 'application/json' }));
   app.use(express.json());
+  app.use(express.urlencoded({ extended: true }));
+  
+  // CORS headers for documentation API
+  app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, X-Shopify-Hmac-Sha256');
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    next();
+  });
+  
+  // Mount documentation routes
+  app.use('/api/docs', docsRouter);
+  console.log('📖 Documentation API mounted at /api/docs');
+  
+  // Root endpoint with service information
+  app.get('/', (req, res) => {
+    res.json({
+      service: 'EFD Discord Bot Server',
+      version: '1.0.0',
+      endpoints: {
+        webhooks: {
+          shopify_products: 'POST /webhook/shopify/products/create'
+        },
+        documentation: {
+          interactive: '/api/docs/',
+          api: '/api/docs/commands',
+          categories: '/api/docs/categories',
+          search: '/api/docs/search?q=term',
+          stats: '/api/docs/stats',
+          health: '/api/docs/health'
+        }
+      },
+      status: 'online',
+      timestamp: new Date().toISOString()
+    });
+  });
   
   // Health check endpoint
   app.get('/health', (req, res) => {
-    res.json({ status: 'ok', timestamp: new Date().toISOString() });
+    res.json({
+      status: 'healthy',
+      service: 'EFD Discord Bot Server',
+      discord: client.isReady() ? 'connected' : 'disconnected',
+      uptime: process.uptime(),
+      timestamp: new Date().toISOString()
+    });
   });
-  
-  // Shopify webhook endpoint
-  app.post('/webhook/shopify/products/create', async (req, res) => {
-    try {
-      const hmacHeader = req.get('X-Shopify-Hmac-Sha256');
-      const body = req.body;
-      
-      // Verify webhook authenticity
-      if (!verifyShopifyWebhook(body, hmacHeader)) {
-        console.log('Webhook verification failed');
-        return res.status(401).send('Unauthorized');
-      }
-      
-      const product = JSON.parse(body.toString());
-      console.log('Received product webhook:', product.title);
-      
-      // Determine category and target channel
-      const category = categorizeProduct(product);
-      const channelId = category === 'gemstones' ? GEMSTONES_CHANNEL_ID : JEWELRY_CHANNEL_ID;
-      
-      // Get Discord channel
-      const channel = await client.channels.fetch(channelId);
-      if (!channel) {
-        console.error(`Channel ${channelId} not found`);
-        return res.status(500).send('Channel not found');
-      }
-      
-      // Format and send message
-      const { content, image } = formatProductMessage(product);
-      const messageOptions = { content };
-      
-      if (image) {
-        messageOptions.embeds = [{
-          image: { url: image },
-          color: category === 'gemstones' ? 0x9b59b6 : 0xe74c3c
-        }];
-      }
-      
-      await channel.send(messageOptions);
-      console.log(`Posted ${category} product to Discord: ${product.title}`);
-      
-      res.status(200).send('OK');
-      
-    } catch (error) {
-      console.error('Webhook processing error:', error);
-      res.status(500).send('Internal Server Error');
-    }
-  });
-  
-  const port = process.env.WEBHOOK_PORT || 3000;
-  app.listen(port, () => {
-    console.log(`🌐 Webhook server listening on port ${port}`);
-  });
-  
-  return app;
-}

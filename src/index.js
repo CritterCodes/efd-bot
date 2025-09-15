@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import dotenv from 'dotenv';
-import { setupWebhookServer } from './webhook.js';
+import { setupExpressServer } from './server.js';
 import RoadmapAutomation from './lib/roadmapAutomation.js';
 dotenv.config();
 
@@ -15,7 +15,24 @@ const __dirname = path.dirname(__filename);
 const commandFiles = fs.readdirSync(path.join(__dirname, 'commands')).filter(file => file.endsWith('.js'));
 for (const file of commandFiles) {
   const commandModule = await import(pathToFileURL(path.join(__dirname, 'commands', file)).href);
-  client.commands.set(commandModule.default.data.name, commandModule.default);
+  
+  // Skip files that don't export a command (like handlers or utilities)
+  if (!commandModule.default) {
+    console.log(`Skipping ${file} - no default export`);
+    continue;
+  }
+  
+  // Handle slash commands (have .data property)
+  if (commandModule.default.data) {
+    client.commands.set(commandModule.default.data.name, commandModule.default);
+  } 
+  // Handle button handlers (have .name property)
+  else if (commandModule.default.name) {
+    client.commands.set(commandModule.default.name, commandModule.default);
+  }
+  else {
+    console.log(`Skipping ${file} - no valid command structure`);
+  }
 }
 
 client.once(Events.ClientReady, async () => {
@@ -27,7 +44,7 @@ client.once(Events.ClientReady, async () => {
   client.roadmapAutomation = roadmapAutomation;
   
   // Start webhook server
-  setupWebhookServer(client);
+  setupExpressServer(client);
 });
 
 client.on(Events.InteractionCreate, async interaction => {
@@ -42,18 +59,26 @@ client.on(Events.InteractionCreate, async interaction => {
       await interaction.reply({ content: 'There was an error executing that command!', flags: 64 });
     }
   } else if (interaction.isButton()) {
-    // Handle verification button
+    // Handle verification button interactions
     if (interaction.customId === 'start_verification') {
-      const verifyCommand = client.commands.get('verify');
-      if (verifyCommand) {
-        try {
-          await verifyCommand.execute(interaction);
-        } catch (error) {
-          console.error(error);
-          await interaction.reply({ content: 'There was an error starting verification!', flags: 64 });
+      console.log('Button interaction:', {
+        customId: interaction.customId,
+        user: interaction.user?.username
+      });
+      
+      // Import and use the verification button handler
+      const { handleVerificationButton } = await import('./commands/verification-handler.js');
+      try {
+        await handleVerificationButton(interaction);
+      } catch (error) {
+        console.error('Error handling verification button:', error);
+        if (!interaction.replied && !interaction.deferred) {
+          await interaction.reply({ content: 'There was an error with verification!', flags: 64 });
         }
       }
     }
+    // All other buttons (including verification workflow buttons) are handled 
+    // by their respective workflows using awaitMessageComponent()
   }
 });
 

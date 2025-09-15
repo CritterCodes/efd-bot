@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EFD Bot Commands - Live Documentation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #667eea;
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --text: #1a202c;
+            --text-muted: #718096;
+            --border: #e2e8f0;
+            --success: #38a169;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 2rem;
+            background: var(--card);
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+        }
+
+        .header h1 {
+            color: var(--primary);
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        .search-box {
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background: var(--card);
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid var(--border);
+            border-radius: 6px;
+            font-size: 1rem;
+            font-family: inherit;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .commands-grid {
+            display: grid;
+            gap: 1.5rem;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+        }
+
+        .command-card {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+        }
+
+        .command-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .command-name {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--primary);
+            background: rgba(102, 126, 234, 0.1);
+            padding: 0.25rem 0.75rem;
+            border-radius: 6px;
+        }
+
+        .command-category {
+            background: var(--success);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .command-description {
+            color: var(--text-muted);
+            margin-bottom: 1.5rem;
+            font-size: 1rem;
+        }
+
+        .section {
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title {
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            color: var(--text);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .usage-list {
+            list-style: none;
+            margin-bottom: 1rem;
+        }
+
+        .usage-item {
+            font-family: 'JetBrains Mono', monospace;
+            background: rgba(102, 126, 234, 0.05);
+            padding: 0.5rem;
+            margin-bottom: 0.5rem;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            border-left: 3px solid var(--primary);
+        }
+
+        .examples {
+            background: rgba(56, 161, 105, 0.05);
+            padding: 1rem;
+            border-radius: 8px;
+            border-left: 3px solid var(--success);
+        }
+
+        .example {
+            margin-bottom: 0.75rem;
+        }
+
+        .example:last-child {
+            margin-bottom: 0;
+        }
+
+        .example-command {
+            font-family: 'JetBrains Mono', monospace;
+            background: rgba(0, 0, 0, 0.05);
+            padding: 0.5rem;
+            border-radius: 4px;
+            margin-bottom: 0.25rem;
+            font-size: 0.9rem;
+        }
+
+        .example-description {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .notes {
+            background: rgba(214, 158, 46, 0.1);
+            padding: 1rem;
+            border-radius: 8px;
+            border-left: 3px solid #d69e2e;
+        }
+
+        .note {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+
+        .note:last-child {
+            margin-bottom: 0;
+        }
+
+        .note:before {
+            content: "💡 ";
+            margin-right: 0.25rem;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+        }
+
+        .error {
+            background: rgba(229, 62, 62, 0.1);
+            color: #e53e3e;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .commands-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .command-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>EFD Bot Commands</h1>
+            <p>Complete guide to using the EFD Discord bot</p>
+        </div>
+
+        <div class="search-box">
+            <input type="text" id="searchInput" class="search-input" placeholder="Search commands..." />
+        </div>
+
+        <div id="content">
+            <div class="loading">Loading commands...</div>
+        </div>
+    </div>
+
+    <script>
+        let allCommands = [];
+
+        async function loadCommands() {
+            try {
+                const response = await fetch('/api/docs/commands');
+                const data = await response.json();
+                allCommands = data.commands || [];
+                renderCommands(allCommands);
+            } catch (error) {
+                document.getElementById('content').innerHTML = `
+                    <div class="error">
+                        <strong>Error loading commands:</strong> ${error.message}
+                        <br><br>
+                        Make sure the server is running and try refreshing the page.
+                    </div>
+                `;
+            }
+        }
+
+        function renderCommands(commands) {
+            const content = document.getElementById('content');
+            
+            if (commands.length === 0) {
+                content.innerHTML = '<div class="loading">No commands found.</div>';
+                return;
+            }
+
+            content.innerHTML = `
+                <div class="commands-grid">
+                    ${commands.map(command => renderCommand(command)).join('')}
+                </div>
+            `;
+        }
+
+        function renderCommand(command) {
+            return `
+                <div class="command-card">
+                    <div class="command-header">
+                        <span class="command-name">/${command.name}</span>
+                        <span class="command-category">${command.category}</span>
+                    </div>
+                    
+                    <div class="command-description">
+                        ${command.description}
+                    </div>
+
+                    ${command.usage ? `
+                        <div class="section">
+                            <div class="section-title">Usage</div>
+                            <ul class="usage-list">
+                                ${command.usage.map(usage => `<li class="usage-item">${usage}</li>`).join('')}
+                            </ul>
+                        </div>
+                    ` : ''}
+
+                    ${command.examples && command.examples.length > 0 ? `
+                        <div class="section">
+                            <div class="section-title">Examples</div>
+                            <div class="examples">
+                                ${command.examples.map(example => `
+                                    <div class="example">
+                                        <div class="example-command">${example.command}</div>
+                                        <div class="example-description">${example.description}</div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+
+                    ${command.notes && command.notes.length > 0 ? `
+                        <div class="section">
+                            <div class="section-title">Notes</div>
+                            <div class="notes">
+                                ${command.notes.map(note => `<div class="note">${note}</div>`).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+
+        function filterCommands(searchTerm) {
+            const filtered = allCommands.filter(command => 
+                command.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                command.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                command.category.toLowerCase().includes(searchTerm.toLowerCase())
+            );
+            renderCommands(filtered);
+        }
+
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            filterCommands(e.target.value);
+        });
+
+        // Load commands when page loads
+        loadCommands();
+    </script>
+</body>
+</html>

@@ -13,7 +13,12 @@ const commandFiles = fs.readdirSync(path.join(__dirname, 'src', 'commands')).fil
 
 for (const file of commandFiles) {
   const commandModule = await import(pathToFileURL(path.join(__dirname, 'src', 'commands', file)).href);
-  commands.push(commandModule.default.data.toJSON());
+  // Only add commands that have slash command data
+  if (commandModule.default.data) {
+    commands.push(commandModule.default.data.toJSON());
+  } else {
+    console.log(`Skipping ${file} - not a slash command`);
+  }
 }
 
 const rest = new REST({ version: '10' }).setToken(process.env.BOT_TOKEN);
@@ -26,6 +31,19 @@ const rest = new REST({ version: '10' }).setToken(process.env.BOT_TOKEN);
       { body: commands }
     );
     console.log('Successfully reloaded application (/) commands.');
+    
+    // Auto-regenerate documentation after successful deployment
+    try {
+      console.log('\n🔄 Auto-updating command documentation...');
+      const { CommandDocsGenerator } = await import('./scripts/generate-docs.js');
+      const generator = new CommandDocsGenerator();
+      await generator.generateDocs();
+      console.log('✅ Documentation updated automatically after command deployment!');
+      console.log('📖 View updated docs at: http://localhost:3000/api/docs/');
+    } catch (docError) {
+      console.warn('⚠️  Warning: Failed to update documentation automatically:', docError.message);
+      console.log('💡 You can manually update docs by running: node scripts/generate-docs.js');
+    }
   } catch (error) {
     console.error(error);
   }

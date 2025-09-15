@@ -1,0 +1,2576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EFD Bot Admin Commands</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #dc2626; /* Red for admin */
+            --primary-dark: #b91c1c;
+            --secondary-color: #7c2d12;
+            --accent-color: #f97316;
+            --success-color: #38a169;
+            --warning-color: #d69e2e;
+            --error-color: #e53e3e;
+            --text-primary: #1a202c;
+            --text-secondary: #4a5568;
+            --text-muted: #718096;
+            --bg-primary: #ffffff;
+            --bg-secondary: #fef2f2;
+            --bg-sidebar: #7f1d1d;
+            --bg-sidebar-hover: #991b1b;
+            --border-color: #fecaca;
+            --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 280px;
+            background: var(--bg-sidebar);
+            color: white;
+            padding: 2rem 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 1000;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-header {
+            padding: 0 2rem 2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+
+        .sidebar-subtitle {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-bottom: 1rem;
+        }
+
+        .admin-warning {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            font-size: 0.85rem;
+        }
+
+        .admin-warning .material-icons {
+            vertical-align: middle;
+            margin-right: 0.5rem;
+            font-size: 1.2rem;
+        }
+
+        .search-box {
+            position: relative;
+            margin-bottom: 1rem;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 0.75rem 1rem 0.75rem 2.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: white;
+            font-size: 0.9rem;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .search-input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .search-input:focus {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: var(--primary-color);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 1.2rem;
+        }
+
+        .sidebar-nav {
+            padding: 2rem 0 0;
+        }
+
+        .nav-section {
+            margin-bottom: 2rem;
+        }
+
+        .nav-section-title {
+            padding: 0 2rem;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            opacity: 0.7;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .nav-item {
+            display: block;
+            padding: 0.75rem 2rem;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+            cursor: pointer;
+        }
+
+        .nav-item:hover {
+            background: var(--bg-sidebar-hover);
+            color: white;
+            border-left-color: var(--primary-color);
+        }
+
+        .nav-item.active {
+            background: rgba(220, 38, 38, 0.15);
+            color: white;
+            border-left-color: var(--primary-color);
+        }
+
+        .nav-item-icon {
+            margin-right: 0.75rem;
+            font-size: 1.1rem;
+        }
+
+        .stats-section {
+            padding: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: auto;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #fbbf24;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 2rem;
+            max-width: calc(100vw - 280px);
+        }
+
+        .header {
+            background: var(--bg-primary);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-md);
+            border: 2px solid var(--primary-color);
+        }
+
+        .header-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .header-subtitle {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        .content-section {
+            background: var(--bg-primary);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border-color);
+        }
+
+        .command-card {
+            background: var(--bg-primary);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-md);
+            border: 2px solid var(--primary-color);
+        }
+
+        .command-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .command-name {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            background: rgba(220, 38, 38, 0.1);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+        }
+
+        .command-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .badge-admin {
+            background: rgba(220, 38, 38, 0.1);
+            color: var(--primary-color);
+        }
+
+        .badge-restricted {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+        }
+
+        .command-description {
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+            line-height: 1.7;
+        }
+
+        .section {
+            margin-bottom: 2rem;
+        }
+
+        .section-title {
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .usage-list {
+            list-style: none;
+            margin-bottom: 1rem;
+        }
+
+        .usage-item {
+            font-family: 'JetBrains Mono', monospace;
+            background: rgba(220, 38, 38, 0.05);
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .examples-container {
+            background: rgba(56, 161, 105, 0.05);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border-left: 4px solid var(--success-color);
+        }
+
+        .example {
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: var(--bg-primary);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .example:last-child {
+            margin-bottom: 0;
+        }
+
+        .example-command {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--bg-secondary);
+            padding: 0.75rem;
+            border-radius: 6px;
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .example-description {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .notes-container {
+            background: rgba(214, 158, 46, 0.05);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border-left: 4px solid var(--warning-color);
+        }
+
+        .note {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+
+        .note:last-child {
+            margin-bottom: 0;
+        }
+
+        .note-icon {
+            color: var(--warning-color);
+            margin-top: 0.1rem;
+            flex-shrink: 0;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-muted);
+        }
+
+        .error {
+            background: rgba(229, 62, 62, 0.1);
+            color: var(--error-color);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border-left: 4px solid var(--error-color);
+            margin-bottom: 2rem;
+        }
+
+        /* Quick Access Links */
+        .quick-links {
+            background: var(--bg-primary);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border-color);
+        }
+
+        .quick-links h3 {
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+
+        .quick-links a {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            margin: 0.25rem 0.5rem 0.25rem 0;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            text-decoration: none;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .quick-links a:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+                max-width: 100vw;
+            }
+
+            .command-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h1 class="sidebar-title">EFD Bot Admin</h1>
+            <p class="sidebar-subtitle">Administrative Commands</p>
+            
+            <div class="admin-warning">
+                <span class="material-icons">warning</span>
+                Administrator access required
+            </div>
+            
+            <div class="search-box">
+                <span class="material-icons search-icon">search</span>
+                <input type="text" id="searchInput" class="search-input" placeholder="Search admin commands..." />
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <div class="nav-section">
+                <div class="nav-section-title">Navigation</div>
+                <a href="#overview" class="nav-item active" data-section="overview">
+                    <span class="material-icons nav-item-icon">dashboard</span>
+                    Admin Overview
+                </a>
+                <a href="/api/docs/" class="nav-item">
+                    <span class="material-icons nav-item-icon">people</span>
+                    User Commands
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Admin Commands</div>
+                <div id="commandNav">
+                    <!-- Dynamically populated -->
+                </div>
+            </div>
+        </nav>
+
+        <div class="stats-section">
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-number" id="commandCount">-</div>
+                    <div class="stat-label">Admin Commands</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="categoryCount">-</div>
+                    <div class="stat-label">Categories</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div id="content">
+            <div class="loading">
+                <span class="material-icons" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;">admin_panel_settings</span>
+                <div>Loading admin commands...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let allCommands = [];
+        let currentSection = 'overview';
+
+        async function loadAdminCommands() {
+            try {
+                const response = await fetch('/api/docs/admin-commands');
+                const data = await response.json();
+                allCommands = data.commands || [];
+                
+                updateStats(data);
+                populateNavigation();
+                showOverview();
+                
+            } catch (error) {
+                document.getElementById('content').innerHTML = `
+                    <div class="error">
+                        <strong>Error loading admin commands:</strong> ${error.message}
+                        <br><br>
+                        Make sure the server is running and you have admin permissions.
+                    </div>
+                `;
+            }
+        }
+
+        function updateStats(data) {
+            document.getElementById('commandCount').textContent = data.metadata?.commandCount || allCommands.length;
+            const categories = [...new Set(allCommands.map(cmd => cmd.category))];
+            document.getElementById('categoryCount').textContent = categories.length;
+        }
+
+        function populateNavigation() {
+            // Populate command navigation
+            const commandNav = document.getElementById('commandNav');
+            commandNav.innerHTML = allCommands.map(command => `
+                <a href="#command-${command.name}" class="nav-item" data-section="command" data-command="${command.name}">
+                    <span class="material-icons nav-item-icon">admin_panel_settings</span>
+                    ${command.name}
+                </a>
+            `).join('');
+
+            // Add click handlers
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.addEventListener('click', handleNavClick);
+            });
+        }
+
+        function handleNavClick(e) {
+            if (e.currentTarget.href && e.currentTarget.href.includes('/api/docs/')) {
+                return; // Let normal navigation happen for external links
+            }
+            
+            e.preventDefault();
+            
+            // Update active state
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            e.currentTarget.classList.add('active');
+
+            const section = e.currentTarget.dataset.section;
+            const command = e.currentTarget.dataset.command;
+
+            if (section === 'overview') {
+                showOverview();
+            } else if (section === 'command') {
+                showCommand(command);
+            }
+        }
+
+        function showOverview() {
+            currentSection = 'overview';
+            const content = document.getElementById('content');
+            
+            content.innerHTML = `
+                <div class="header">
+                    <h1 class="header-title">Admin Command Center</h1>
+                    <p class="header-subtitle">Administrative commands for bot management and moderation</p>
+                </div>
+
+                <div class="quick-links">
+                    <h3>Quick Links</h3>
+                    <a href="/api/docs/">User Commands</a>
+                    <a href="#command-gems admin">GEMS Management</a>
+                    <a href="#command-roadmap-admin">Roadmap Admin</a>
+                </div>
+
+                <div class="content-section">
+                    <h2>⚠️ Important Admin Guidelines</h2>
+                    <div style="margin-top: 1.5rem;">
+                        <h3 style="margin-bottom: 0.75rem; color: var(--primary-color);">🔐 Security</h3>
+                        <ul style="margin-bottom: 1.5rem; padding-left: 1.5rem;">
+                            <li>All admin commands require Administrator permissions</li>
+                            <li>All admin actions are logged and auditable</li>
+                            <li>Never share admin credentials or run commands without verification</li>
+                        </ul>
+                        
+                        <h3 style="margin-bottom: 0.75rem; color: var(--primary-color);">💎 GEMS Economy</h3>
+                        <ul style="margin-bottom: 1.5rem; padding-left: 1.5rem;">
+                            <li>Use GEMS add/remove commands sparingly to maintain balance</li>
+                            <li>Always include clear reasons for transparency</li>
+                            <li>Monitor GEMS statistics regularly</li>
+                        </ul>
+                        
+                        <h3 style="margin-bottom: 0.75rem; color: var(--primary-color);">📋 Best Practices</h3>
+                        <ul style="padding-left: 1.5rem;">
+                            <li>Test commands in development before using in production</li>
+                            <li>Use descriptive reasons for all administrative actions</li>
+                            <li>Regular backups of important data</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="content-section">
+                    <h2>Available Admin Commands</h2>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; margin-top: 1rem;">
+                        ${allCommands.map(command => `
+                            <div style="padding: 1.5rem; background: var(--bg-secondary); border-radius: 8px; border: 1px solid var(--border-color);">
+                                <h3 style="margin-bottom: 0.5rem; color: var(--primary-color);">${command.name}</h3>
+                                <p style="color: var(--text-muted); margin-bottom: 1rem;">${command.description}</p>
+                                <div style="font-size: 0.9rem;">
+                                    <strong>Category:</strong> ${command.category}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function showCommand(commandName) {
+            currentSection = 'command';
+            const command = allCommands.find(cmd => cmd.name === commandName);
+            if (!command) return;
+
+            const content = document.getElementById('content');
+            content.innerHTML = renderCommandCard(command);
+        }
+
+        function renderCommandCard(command) {
+            return `
+                <div class="command-card">
+                    <div class="command-header">
+                        <span class="command-name">/${command.name}</span>
+                        <span class="command-badge badge-admin">Admin Only</span>
+                        <span class="command-badge badge-restricted">Restricted</span>
+                    </div>
+                    
+                    <div class="command-description">
+                        ${command.description}
+                    </div>
+
+                    ${command.usage && command.usage.length > 0 ? `
+                        <div class="section">
+                            <div class="section-title">Usage</div>
+                            <ul class="usage-list">
+                                ${command.usage.map(usage => `<li class="usage-item">${usage}</li>`).join('')}
+                            </ul>
+                        </div>
+                    ` : ''}
+
+                    ${command.examples && command.examples.length > 0 ? `
+                        <div class="section">
+                            <div class="section-title">Examples</div>
+                            <div class="examples-container">
+                                ${command.examples.map(example => `
+                                    <div class="example">
+                                        <div class="example-command">${example.command}</div>
+                                        <div class="example-description">${example.description}</div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+
+                    ${command.notes && command.notes.length > 0 ? `
+                        <div class="section">
+                            <div class="section-title">Important Notes</div>
+                            <div class="notes-container">
+                                ${command.notes.map(note => `
+                                    <div class="note">
+                                        <span class="material-icons note-icon">warning</span>
+                                        <span>${note}</span>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+
+        function filterCommands(searchTerm) {
+            const filtered = allCommands.filter(command => 
+                command.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                command.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                command.category.toLowerCase().includes(searchTerm.toLowerCase())
+            );
+
+            if (searchTerm.trim() === '') {
+                showOverview();
+                return;
+            }
+
+            const content = document.getElementById('content');
+            content.innerHTML = `
+                <div class="header">
+                    <h1 class="header-title">Search Results</h1>
+                    <p class="header-subtitle">Found ${filtered.length} admin command${filtered.length !== 1 ? 's' : ''} matching "${searchTerm}"</p>
+                </div>
+
+                ${filtered.length > 0 ? 
+                    filtered.map(command => renderCommandCard(command)).join('') : 
+                    '<div class="content-section"><p>No admin commands found matching your search.</p></div>'
+                }
+            `;
+        }
+
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            filterCommands(e.target.value);
+        });
+
+        // Load admin commands when page loads
+        loadAdminCommands();
+    </script>
+</body>
+</html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EFD Discord Bot Commands</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #667eea;
+            --primary-dark: #5a6fd8;
+            --secondary-color: #764ba2;
+            --accent-color: #4facfe;
+            --success-color: #38a169;
+            --warning-color: #d69e2e;
+            --error-color: #e53e3e;
+            --text-primary: #1a202c;
+            --text-secondary: #4a5568;
+            --text-muted: #718096;
+            --bg-primary: #ffffff;
+            --bg-secondary: #f7fafc;
+            --bg-sidebar: #2d3748;
+            --bg-sidebar-hover: #4a5568;
+            --border-color: #e2e8f0;
+            --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 280px;
+            background: var(--bg-sidebar);
+            color: white;
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 1000;
+            box-shadow: var(--shadow-xl);
+            transform: translateX(0);
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .sidebar.hidden {
+            transform: translateX(-100%);
+        }
+
+        .sidebar-header {
+            padding: 24px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        }
+
+        .sidebar-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .sidebar-subtitle {
+            font-size: 14px;
+            opacity: 0.8;
+            font-weight: 400;
+        }
+
+        .sidebar-search {
+            padding: 16px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .search-container {
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 16px 12px 44px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+
+        .search-input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .search-input:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            opacity: 0.6;
+            font-size: 18px;
+        }
+
+        .sidebar-stats {
+            padding: 16px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--accent-color);
+        }
+
+        .stat-label {
+            font-size: 12px;
+            opacity: 0.8;
+            margin-top: 4px;
+        }
+
+        .sidebar-nav {
+            padding: 8px 0;
+        }
+
+        .nav-section {
+            margin-bottom: 8px;
+        }
+
+        .nav-section-title {
+            padding: 12px 20px 8px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            opacity: 0.7;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            border-left: 3px solid transparent;
+            cursor: pointer;
+        }
+
+        .nav-item:hover,
+        .nav-item.active {
+            background: var(--bg-sidebar-hover);
+            border-left-color: var(--accent-color);
+            color: white;
+        }
+
+        .nav-item .material-icons {
+            margin-right: 12px;
+            font-size: 20px;
+        }
+
+        .nav-item-text {
+            flex: 1;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .nav-item-count {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            transition: margin-left 0.3s ease-in-out;
+            min-height: 100vh;
+            background: var(--bg-secondary);
+        }
+
+        .main-content.expanded {
+            margin-left: 0;
+        }
+
+        .top-bar {
+            background: var(--bg-primary);
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border-color);
+            box-shadow: var(--shadow-sm);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 4px;
+            transition: background 0.2s ease;
+        }
+
+        .menu-toggle:hover {
+            background: var(--bg-secondary);
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .content-area {
+            padding: 24px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .page-header {
+            margin-bottom: 32px;
+        }
+
+        .page-title {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .page-description {
+            font-size: 16px;
+            color: var(--text-secondary);
+        }
+
+        /* Command Cards */
+        .commands-container {
+            display: none;
+        }
+
+        .commands-container.active {
+            display: block;
+        }
+
+        .category-section {
+            margin-bottom: 48px;
+        }
+
+        .category-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 24px;
+            padding: 16px 0;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .category-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+        }
+
+        .category-info h2 {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .category-meta {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .commands-grid {
+            display: grid;
+            gap: 20px;
+        }
+
+        .command-card {
+            background: var(--bg-primary);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: var(--shadow-md);
+            transition: all 0.3s ease;
+            border: 1px solid var(--border-color);
+        }
+
+        .command-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary-color);
+        }
+
+        .command-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .command-name {
+            font-family: 'JetBrains Mono', 'Courier New', monospace;
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--primary-color);
+            background: rgba(102, 126, 234, 0.1);
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid rgba(102, 126, 234, 0.2);
+        }
+
+        .command-badges {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            padding: 4px 10px;
+            border-radius: 16px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge.admin { background: rgba(214, 158, 46, 0.1); color: var(--warning-color); border: 1px solid rgba(214, 158, 46, 0.2); }
+        .badge.public { background: rgba(56, 161, 105, 0.1); color: var(--success-color); border: 1px solid rgba(56, 161, 105, 0.2); }
+        .badge.guild { background: rgba(128, 90, 213, 0.1); color: #805ad5; border: 1px solid rgba(128, 90, 213, 0.2); }
+
+        .command-description {
+            font-size: 16px;
+            color: var(--text-primary);
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .command-section {
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .parameters-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .parameter {
+            background: var(--bg-secondary);
+            padding: 12px 16px;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .parameter-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 4px;
+        }
+
+        .parameter-name {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .parameter-type {
+            font-size: 12px;
+            color: var(--text-muted);
+            background: rgba(113, 128, 150, 0.1);
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+
+        .parameter-description {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .examples-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .example {
+            background: #1a202c;
+            color: #e2e8f0;
+            padding: 16px;
+            border-radius: 8px;
+            font-family: 'JetBrains Mono', monospace;
+            position: relative;
+            overflow-x: auto;
+        }
+
+        .example-command {
+            font-size: 14px;
+            margin-bottom: 8px;
+            color: #68d391;
+        }
+
+        .example-description {
+            font-size: 12px;
+            color: #a0aec0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 64px 24px;
+            color: var(--text-secondary);
+        }
+
+        .empty-state .material-icons {
+            font-size: 64px;
+            margin-bottom: 16px;
+            opacity: 0.3;
+        }
+
+        .empty-state h3 {
+            font-size: 20px;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.visible {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .menu-toggle {
+                display: block;
+            }
+
+            .content-area {
+                padding: 16px;
+            }
+
+            .command-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Smooth scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Loading states */
+        .loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        /* Focus styles for accessibility */
+        .nav-item:focus,
+        .search-input:focus,
+        .menu-toggle:focus {
+            outline: 2px solid var(--accent-color);
+            outline-offset: 2px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-title">
+                <span class="material-icons">admin_panel_settings</span>
+                EFD Bot Admin
+            </div>
+            <div class="sidebar-subtitle">Administrator Documentation</div>
+        </div>
+        
+        <div class="sidebar-search">
+            <div class="search-container">
+                <span class="material-icons search-icon">search</span>
+                <input type="text" class="search-input" placeholder="Search commands..." id="searchInput">
+            </div>
+        </div>
+        
+        <div class="sidebar-stats">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number">9</div>
+                    <div class="stat-label">Commands</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">4</div>
+                    <div class="stat-label">Categories</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">4</div>
+                    <div class="stat-label">Admin Only</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">5</div>
+                    <div class="stat-label">Public</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="sidebar-nav">
+            <div class="nav-section">
+                <div class="nav-section-title">Overview</div>
+                <div class="nav-item active" data-section="overview">
+                    <span class="material-icons">dashboard</span>
+                    <span class="nav-item-text">All Commands</span>
+                    <span class="nav-item-count">9</span>
+                </div>
+            </div>
+            
+            <div class="nav-section">
+                <div class="nav-section-title">Categories</div>
+                
+                <div class="nav-item" data-section="economy">
+                    <span class="material-icons">account_balance</span>
+                    <span class="nav-item-text">Economy</span>
+                    <span class="nav-item-count">2</span>
+                </div>
+            
+                <div class="nav-item" data-section="general">
+                    <span class="material-icons">apps</span>
+                    <span class="nav-item-text">General</span>
+                    <span class="nav-item-count">3</span>
+                </div>
+            
+                <div class="nav-item" data-section="administration">
+                    <span class="material-icons">folder</span>
+                    <span class="nav-item-text">Administration</span>
+                    <span class="nav-item-count">1</span>
+                </div>
+            
+                <div class="nav-item" data-section="verification">
+                    <span class="material-icons">folder</span>
+                    <span class="nav-item-text">Verification</span>
+                    <span class="nav-item-count">3</span>
+                </div>
+            
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content" id="mainContent">
+        <div class="top-bar">
+            <div style="display: flex; align-items: center; gap: 16px;">
+                <button class="menu-toggle" id="menuToggle">
+                    <span class="material-icons">menu</span>
+                </button>
+                <div class="breadcrumb">
+                    <span class="material-icons">home</span>
+                    <span>Documentation</span>
+                    <span class="material-icons">chevron_right</span>
+                    <span id="currentSection">All Commands</span>
+                </div>
+            </div>
+            <div style="font-size: 14px; color: var(--text-secondary);">
+                Generated on 9/14/2025
+            </div>
+        </div>
+        
+        <div class="content-area">
+            <div class="page-header">
+                <h1 class="page-title" id="pageTitle">Admin Commands</h1>
+                <p class="page-description" id="pageDescription">
+                    Administrator documentation for all available Discord commands. Includes both public and admin-only commands.
+                </p>
+            </div>
+            
+            <!-- Role Toggle -->
+            <div style="margin-bottom: 24px; padding: 16px; background: var(--bg-primary); border-radius: 8px; border: 1px solid var(--border-color);">
+                <div style="display: flex; align-items: center; gap: 16px; justify-content: space-between; flex-wrap: wrap;">
+                    <div style="display: flex; align-items: center; gap: 16px;">
+                        <span style="font-weight: 600; color: var(--text-primary);">Documentation View:</span>
+                        <div style="display: flex; gap: 8px;">
+                            <a href="/api/docs/" 
+                               style="padding: 8px 16px; border-radius: 6px; text-decoration: none; font-weight: 500; transition: all 0.2s ease; background: var(--bg-secondary); color: var(--text-secondary); border: 1px solid var(--border-color);"
+                               onmouseover="this.style.transform='translateY(-1px)'"
+                               onmouseout="this.style.transform='translateY(0)'">
+                                <span class="material-icons" style="font-size: 16px; vertical-align: middle; margin-right: 6px;">people</span>
+                                User Commands
+                            </a>
+                            <a href="/api/docs/admin/" 
+                               style="padding: 8px 16px; border-radius: 6px; text-decoration: none; font-weight: 500; transition: all 0.2s ease; background: var(--warning-color); color: white;"
+                               onmouseover="this.style.transform='translateY(-1px)'"
+                               onmouseout="this.style.transform='translateY(0)'">
+                                <span class="material-icons" style="font-size: 16px; vertical-align: middle; margin-right: 6px;">admin_panel_settings</span>
+                                Admin Commands
+                            </a>
+                        </div>
+                    </div>
+                    <div style="font-size: 14px; color: var(--text-muted); display: flex; align-items: center; gap: 8px;">
+                        <span class="material-icons" style="font-size: 16px;">warning</span>
+                        Showing all commands including admin-only
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Overview Section -->
+            <div class="commands-container active" id="overview">
+                
+                <div class="category-section">
+                    <div class="category-header">
+                        <div class="category-icon">
+                            <span class="material-icons">account_balance</span>
+                        </div>
+                        <div class="category-info">
+                            <h2>Economy</h2>
+                            <div class="category-meta">2 commands</div>
+                        </div>
+                    </div>
+                    <div class="commands-grid">
+                        
+            <div class="command-card">
+                <div class="command-header">
+                    <div class="command-name">/gems</div>
+                    <div class="command-badges">
+                        <span class="badge admin">Admin Only</span>
+                        
+                    </div>
+                </div>
+                <div class="command-description">Manage your GEMS currency</div>
+                
+            <div class="command-section">
+                <div class="section-title">Parameters</div>
+                <div class="parameters-list">
+                    
+                        <div class="parameter">
+                            <div class="parameter-header">
+                                <span class="parameter-name">user</span>
+                                <span class="parameter-type">User</span>
+                            </div>
+                            <div class="parameter-description">User to check balance for (admin only)</div>
+                        </div>
+                    
+                        <div class="parameter">
+                            <div class="parameter-header">
+                                <span class="parameter-name">user</span>
+                                <span class="parameter-type">User</span>
+                            </div>
+                            <div class="parameter-description">User to add GEMS to</div>
+                        </div>
+                    
+                        <div class="parameter">
+                            <div class="parameter-header">
+                                <span class="parameter-name">user</span>
+                                <span class="parameter-type">User</span>
+                            </div>
+                            <div class="parameter-description">User to remove GEMS from</div>
+                        </div>
+                    
+                        <div class="parameter">
+                            <div class="parameter-header">
+                                <span class="parameter-name">page</span>
+                                <span class="parameter-type">Integer</span>
+                            </div>
+                            <div class="parameter-description">Page number to view</div>
+                        </div>
+                    
+                        <div class="parameter">
+                            <div class="parameter-header">
+                                <span class="parameter-name">amount</span>
+                                <span class="parameter-type">Integer</span>
+                            </div>
+                            <div class="parameter-description">Amount of GEMS to add</div>
+                        </div>
+                    
+                        <div class="parameter">
+                            <div class="parameter-header">
+                                <span class="parameter-name">amount</span>
+                                <span class="parameter-type">Integer</span>
+                            </div>
+                            <div class="parameter-description">Amount of GEMS to remove</div>
+                        </div>
+                    
+                        <div class="parameter">
+                            <div class="parameter-header">
+                                <span class="parameter-name">reason</span>
+                                <span class="parameter-type">String</span>
+                            </div>
+                            <div class="parameter-description">Reason for adding GEMS</div>
+                        </div>
+                    
+                        <div class="parameter">
+                            <div class="parameter-header">
+                                <span class="parameter-name">reason</span>
+                                <span class="parameter-type">String</span>
+                            </div>
+                            <div class="parameter-description">Reason for removing GEMS</div>
+                        </div>
+                    
+                </div>
+            </div>
+        
+                
+            <div class="command-section">
+                <div class="section-title">Examples</div>
+                <div class="examples-list">
+                    
+                        <div class="example">
+                            <div class="example-command">/gems </div>
+                            <div class="example-description">Check your GEMS balance</div>
+                        </div>
+                    
+                        <div class="example">
+                            <div class="example-command">/gems </div>
+                            <div class="example-description">View server GEMS rankings</div>
+                        </div>
+                    
+                        <div class="example">
+                            <div class="example-command">/gems </div>
+                            <div class="example-description">Transfer GEMS to another user</div>
+                        </div>
+                    
+                </div>
+            </div>
+        
+            </div>
+        
+            <div class="command-card">
+                <div class="command-header">
+                    <div class="command-name">/tip</div>
+                    <div class="command-badges">
+                        <span class="badge public">Public</span>
+                        
+                    </div>
+                </div>
+                <div class="command-description">Tip GEMS to another user</div>
+                
+            <div class="command-section">
+                <div class="section-title">Parameters</div>
+                <div class="parameters-list">
+                    
+                        <div class="parameter">
+                            <div class="parameter-header">
+                                <span class="parameter-name">user</span>
+                                <span class="parameter-type">User</span>
+                            </div>
+                            <div class="parameter-description">User to tip GEMS to</div>
+                        </div>
+                    
+                        <div class="parameter">
+                            <div class="parameter-header">
+                                <span class="parameter-name">amount</span>
+                                <span class="parameter-type">Integer</span>
+                            </div>
+                            <div class="parameter-description">Amount of GEMS to tip</div>
+                        </div>
+                    
+                        <div class="parameter">
+                            <div class="parameter-header">
+                                <span class="parameter-name">reason</span>
+                                <span class="parameter-type">String</span>
+                            </div>
+                            <div class="parameter-description">Optional reason for the tip</div>
+                        </div>
+                    
+                </div>
+            </div>
+        
+                
+            <div class="command-section">
+                <div class="section-title">Examples</div>
+                <div class="examples-list">
+                    
+                        <div class="example">
+                            <div class="example-command">/tip </div>
+                            <div class="example-description">Tip 50 GEMS to another user</div>
+                        </div>
+                    
+                        <div class="example">
+                            <div class="example-command">/tip </div>
+                            <div class="example-description">Tip with a custom reason</div>
+                        </div>
+                    
+                </div>
+            </div>
+        
+            </div>
+        
+                    </div>
+                </div>
+            
+                <div class="category-section">
+                    <div class="category-header">
+                        <div class="category-icon">
+                            <span class="material-icons">apps</span>
+                        </div>
+                        <div class="category-info">
+                            <h2>General</h2>
+                            <div class="category-meta">3 commands</div>
+                        </div>
+                    </div>
+                    <div class="commands-grid">
+                        
+            <div class="command-card">
+                <div class="command-header">
+                    <div class="command-name">/ping</div>
+                    <div class="command-badges">
+                        <span class="badge public">Public</span>
+                        
+                    </div>
+                </div>
+                <div class="command-description">Replies with Pong!</div>
+                
+                
+            <div class="command-section">
+                <div class="section-title">Examples</div>
+                <div class="examples-list">
+                    
+                        <div class="example">
+                            <div class="example-command">/ping </div>
+                            <div class="example-description">Execute the ping command</div>
+                        </div>
+                    
+                </div>
+            </div>
+        
+            </div>
+        
+            <div class="command-card">
+                <div class="command-header">
+                    <div class="command-name">/roadmap</div>
+                    <div class="command-badges">
+                        <span class="badge public">Public</span>
+                        
+                    </div>
+                </div>
+                <div class="command-description">Display the development roadmap and progress</div>
+                
+            <div class="command-section">
+                <div class="section-title">Parameters</div>
+                <div class="parameters-list">
+                    
+                        <div class="parameter">
+                            <div class="parameter-header">
+                                <span class="parameter-name">phase_id</span>
+                                <span class="parameter-type">String</span>
+                            </div>
+                            <div class="parameter-description">Phase ID (e.g., phase-1)</div>
+                        </div>
+                    
+                </div>
+            </div>
+        
+                
+            <div class="command-section">
+                <div class="section-title">Examples</div>
+                <div class="examples-list">
+                    
+                        <div class="example">
+                            <div class="example-command">/roadmap </div>
+                            <div class="example-description">Execute the roadmap command</div>
+                        </div>
+                    
+                </div>
+            </div>
+        
+            </div>
+        
+            <div class="command-card">
+                <div class="command-header">
+                    <div class="command-name">/services</div>
+                    <div class="command-badges">
+                        <span class="badge public">Public</span>
+                        
+                    </div>
+                </div>
+                <div class="command-description">Look up services offered by a Discord user.</div>
+                
+            <div class="command-section">
+                <div class="section-title">Parameters</div>
+                <div class="parameters-list">
+                    
+                        <div class="parameter">
+                            <div class="parameter-header">
+                                <span class="parameter-name">user</span>
+                                <span class="parameter-type">User</span>
+                            </div>
+                            <div class="parameter-description">The user to look up</div>
+                        </div>
+                    
+                </div>
+            </div>
+        
+                
+            <div class="command-section">
+                <div class="section-title">Examples</div>
+                <div class="examples-list">
+                    
+                        <div class="example">
+                            <div class="example-command">/services </div>
+                            <div class="example-description">Execute the services command</div>
+                        </div>
+                    
+                </div>
+            </div>
+        
+            </div>
+        
+                    </div>
+                </div>
+            
+                <div class="category-section">
+                    <div class="category-header">
+                        <div class="category-icon">
+                            <span class="material-icons">folder</span>
+                        </div>
+                        <div class="category-info">
+                            <h2>Administration</h2>
+                            <div class="category-meta">1 command</div>
+                        </div>
+                    </div>
+                    <div class="commands-grid">
+                        
+            <div class="command-card">
+                <div class="command-header">
+                    <div class="command-name">/roadmap-admin</div>
+                    <div class="command-badges">
+                        <span class="badge admin">Admin Only</span>
+                        
+                    </div>
+                </div>
+                <div class="command-description">Administrative commands for roadmap management</div>
+                
+            <div class="command-section">
+                <div class="section-title">Parameters</div>
+                <div class="parameters-list">
+                    
+                        <div class="parameter">
+                            <div class="parameter-header">
+                                <span class="parameter-name">phase_id</span>
+                                <span class="parameter-type">String</span>
+                            </div>
+                            <div class="parameter-description">Phase ID to update</div>
+                        </div>
+                    
+                        <div class="parameter">
+                            <div class="parameter-header">
+                                <span class="parameter-name">status</span>
+                                <span class="parameter-type">String</span>
+                            </div>
+                            <div class="parameter-description">New status for the phase</div>
+                        </div>
+                    
+                        <div class="parameter">
+                            <div class="parameter-header">
+                                <span class="parameter-name">notes</span>
+                                <span class="parameter-type">String</span>
+                            </div>
+                            <div class="parameter-description">Optional notes about the status change</div>
+                        </div>
+                    
+                        <div class="parameter">
+                            <div class="parameter-header">
+                                <span class="parameter-name">phase_id</span>
+                                <span class="parameter-type">String</span>
+                            </div>
+                            <div class="parameter-description">Phase that was completed</div>
+                        </div>
+                    
+                </div>
+            </div>
+        
+                
+            <div class="command-section">
+                <div class="section-title">Examples</div>
+                <div class="examples-list">
+                    
+                        <div class="example">
+                            <div class="example-command">/roadmap-admin </div>
+                            <div class="example-description">Execute the roadmap-admin command</div>
+                        </div>
+                    
+                </div>
+            </div>
+        
+            </div>
+        
+                    </div>
+                </div>
+            
+                <div class="category-section">
+                    <div class="category-header">
+                        <div class="category-icon">
+                            <span class="material-icons">folder</span>
+                        </div>
+                        <div class="category-info">
+                            <h2>Verification</h2>
+                            <div class="category-meta">3 commands</div>
+                        </div>
+                    </div>
+                    <div class="commands-grid">
+                        
+            <div class="command-card">
+                <div class="command-header">
+                    <div class="command-name">/setup-verify</div>
+                    <div class="command-badges">
+                        <span class="badge admin">Admin Only</span>
+                        
+                    </div>
+                </div>
+                <div class="command-description">Set up the verification message with button (Admin only)</div>
+                
+                
+            <div class="command-section">
+                <div class="section-title">Examples</div>
+                <div class="examples-list">
+                    
+                        <div class="example">
+                            <div class="example-command">/setup-verify </div>
+                            <div class="example-description">Execute the setup-verify command</div>
+                        </div>
+                    
+                </div>
+            </div>
+        
+            </div>
+        
+            <div class="command-card">
+                <div class="command-header">
+                    <div class="command-name">/verify-reset</div>
+                    <div class="command-badges">
+                        <span class="badge admin">Admin Only</span>
+                        
+                    </div>
+                </div>
+                <div class="command-description">Reset verification status (Admin only)</div>
+                
+            <div class="command-section">
+                <div class="section-title">Parameters</div>
+                <div class="parameters-list">
+                    
+                        <div class="parameter">
+                            <div class="parameter-header">
+                                <span class="parameter-name">user</span>
+                                <span class="parameter-type">User</span>
+                            </div>
+                            <div class="parameter-description">User to reset (leave empty to reset yourself)</div>
+                        </div>
+                    
+                </div>
+            </div>
+        
+                
+            <div class="command-section">
+                <div class="section-title">Examples</div>
+                <div class="examples-list">
+                    
+                        <div class="example">
+                            <div class="example-command">/verify-reset </div>
+                            <div class="example-description">Execute the verify-reset command</div>
+                        </div>
+                    
+                </div>
+            </div>
+        
+            </div>
+        
+            <div class="command-card">
+                <div class="command-header">
+                    <div class="command-name">/verify</div>
+                    <div class="command-badges">
+                        <span class="badge public">Public</span>
+                        
+                    </div>
+                </div>
+                <div class="command-description">Start member verification process.</div>
+                
+                
+            <div class="command-section">
+                <div class="section-title">Examples</div>
+                <div class="examples-list">
+                    
+                        <div class="example">
+                            <div class="example-command">/verify </div>
+                            <div class="example-description">Execute the verify command</div>
+                        </div>
+                    
+                </div>
+            </div>
+        
+            </div>
+        
+                    </div>
+                </div>
+            
+            </div>
+            
+            <!-- Category Sections -->
+            
+                <div class="commands-container" id="economy">
+                    <div class="category-section">
+                        <div class="category-header">
+                            <div class="category-icon">
+                                <span class="material-icons">account_balance</span>
+                            </div>
+                            <div class="category-info">
+                                <h2>Economy</h2>
+                                <div class="category-meta">2 commands</div>
+                            </div>
+                        </div>
+                        <div class="commands-grid">
+                            
+            <div class="command-card">
+                <div class="command-header">
+                    <div class="command-name">/gems</div>
+                    <div class="command-badges">
+                        <span class="badge admin">Admin Only</span>
+                        
+                    </div>
+                </div>
+                <div class="command-description">Manage your GEMS currency</div>
+                
+            <div class="command-section">
+                <div class="section-title">Parameters</div>
+                <div class="parameters-list">
+                    
+                        <div class="parameter">
+                            <div class="parameter-header">
+                                <span class="parameter-name">user</span>
+                                <span class="parameter-type">User</span>
+                            </div>
+                            <div class="parameter-description">User to check balance for (admin only)</div>
+                        </div>
+                    
+                        <div class="parameter">
+                            <div class="parameter-header">
+                                <span class="parameter-name">user</span>
+                                <span class="parameter-type">User</span>
+                            </div>
+                            <div class="parameter-description">User to add GEMS to</div>
+                        </div>
+                    
+                        <div class="parameter">
+                            <div class="parameter-header">
+                                <span class="parameter-name">user</span>
+                                <span class="parameter-type">User</span>
+                            </div>
+                            <div class="parameter-description">User to remove GEMS from</div>
+                        </div>
+                    
+                        <div class="parameter">
+                            <div class="parameter-header">
+                                <span class="parameter-name">page</span>
+                                <span class="parameter-type">Integer</span>
+                            </div>
+                            <div class="parameter-description">Page number to view</div>
+                        </div>
+                    
+                        <div class="parameter">
+                            <div class="parameter-header">
+                                <span class="parameter-name">amount</span>
+                                <span class="parameter-type">Integer</span>
+                            </div>
+                            <div class="parameter-description">Amount of GEMS to add</div>
+                        </div>
+                    
+                        <div class="parameter">
+                            <div class="parameter-header">
+                                <span class="parameter-name">amount</span>
+                                <span class="parameter-type">Integer</span>
+                            </div>
+                            <div class="parameter-description">Amount of GEMS to remove</div>
+                        </div>
+                    
+                        <div class="parameter">
+                            <div class="parameter-header">
+                                <span class="parameter-name">reason</span>
+                                <span class="parameter-type">String</span>
+                            </div>
+                            <div class="parameter-description">Reason for adding GEMS</div>
+                        </div>
+                    
+                        <div class="parameter">
+                            <div class="parameter-header">
+                                <span class="parameter-name">reason</span>
+                                <span class="parameter-type">String</span>
+                            </div>
+                            <div class="parameter-description">Reason for removing GEMS</div>
+                        </div>
+                    
+                </div>
+            </div>
+        
+                
+            <div class="command-section">
+                <div class="section-title">Examples</div>
+                <div class="examples-list">
+                    
+                        <div class="example">
+                            <div class="example-command">/gems </div>
+                            <div class="example-description">Check your GEMS balance</div>
+                        </div>
+                    
+                        <div class="example">
+                            <div class="example-command">/gems </div>
+                            <div class="example-description">View server GEMS rankings</div>
+                        </div>
+                    
+                        <div class="example">
+                            <div class="example-command">/gems </div>
+                            <div class="example-description">Transfer GEMS to another user</div>
+                        </div>
+                    
+                </div>
+            </div>
+        
+            </div>
+        
+            <div class="command-card">
+                <div class="command-header">
+                    <div class="command-name">/tip</div>
+                    <div class="command-badges">
+                        <span class="badge public">Public</span>
+                        
+                    </div>
+                </div>
+                <div class="command-description">Tip GEMS to another user</div>
+                
+            <div class="command-section">
+                <div class="section-title">Parameters</div>
+                <div class="parameters-list">
+                    
+                        <div class="parameter">
+                            <div class="parameter-header">
+                                <span class="parameter-name">user</span>
+                                <span class="parameter-type">User</span>
+                            </div>
+                            <div class="parameter-description">User to tip GEMS to</div>
+                        </div>
+                    
+                        <div class="parameter">
+                            <div class="parameter-header">
+                                <span class="parameter-name">amount</span>
+                                <span class="parameter-type">Integer</span>
+                            </div>
+                            <div class="parameter-description">Amount of GEMS to tip</div>
+                        </div>
+                    
+                        <div class="parameter">
+                            <div class="parameter-header">
+                                <span class="parameter-name">reason</span>
+                                <span class="parameter-type">String</span>
+                            </div>
+                            <div class="parameter-description">Optional reason for the tip</div>
+                        </div>
+                    
+                </div>
+            </div>
+        
+                
+            <div class="command-section">
+                <div class="section-title">Examples</div>
+                <div class="examples-list">
+                    
+                        <div class="example">
+                            <div class="example-command">/tip </div>
+                            <div class="example-description">Tip 50 GEMS to another user</div>
+                        </div>
+                    
+                        <div class="example">
+                            <div class="example-command">/tip </div>
+                            <div class="example-description">Tip with a custom reason</div>
+                        </div>
+                    
+                </div>
+            </div>
+        
+            </div>
+        
+                        </div>
+                    </div>
+                </div>
+            
+                <div class="commands-container" id="general">
+                    <div class="category-section">
+                        <div class="category-header">
+                            <div class="category-icon">
+                                <span class="material-icons">apps</span>
+                            </div>
+                            <div class="category-info">
+                                <h2>General</h2>
+                                <div class="category-meta">3 commands</div>
+                            </div>
+                        </div>
+                        <div class="commands-grid">
+                            
+            <div class="command-card">
+                <div class="command-header">
+                    <div class="command-name">/ping</div>
+                    <div class="command-badges">
+                        <span class="badge public">Public</span>
+                        
+                    </div>
+                </div>
+                <div class="command-description">Replies with Pong!</div>
+                
+                
+            <div class="command-section">
+                <div class="section-title">Examples</div>
+                <div class="examples-list">
+                    
+                        <div class="example">
+                            <div class="example-command">/ping </div>
+                            <div class="example-description">Execute the ping command</div>
+                        </div>
+                    
+                </div>
+            </div>
+        
+            </div>
+        
+            <div class="command-card">
+                <div class="command-header">
+                    <div class="command-name">/roadmap</div>
+                    <div class="command-badges">
+                        <span class="badge public">Public</span>
+                        
+                    </div>
+                </div>
+                <div class="command-description">Display the development roadmap and progress</div>
+                
+            <div class="command-section">
+                <div class="section-title">Parameters</div>
+                <div class="parameters-list">
+                    
+                        <div class="parameter">
+                            <div class="parameter-header">
+                                <span class="parameter-name">phase_id</span>
+                                <span class="parameter-type">String</span>
+                            </div>
+                            <div class="parameter-description">Phase ID (e.g., phase-1)</div>
+                        </div>
+                    
+                </div>
+            </div>
+        
+                
+            <div class="command-section">
+                <div class="section-title">Examples</div>
+                <div class="examples-list">
+                    
+                        <div class="example">
+                            <div class="example-command">/roadmap </div>
+                            <div class="example-description">Execute the roadmap command</div>
+                        </div>
+                    
+                </div>
+            </div>
+        
+            </div>
+        
+            <div class="command-card">
+                <div class="command-header">
+                    <div class="command-name">/services</div>
+                    <div class="command-badges">
+                        <span class="badge public">Public</span>
+                        
+                    </div>
+                </div>
+                <div class="command-description">Look up services offered by a Discord user.</div>
+                
+            <div class="command-section">
+                <div class="section-title">Parameters</div>
+                <div class="parameters-list">
+                    
+                        <div class="parameter">
+                            <div class="parameter-header">
+                                <span class="parameter-name">user</span>
+                                <span class="parameter-type">User</span>
+                            </div>
+                            <div class="parameter-description">The user to look up</div>
+                        </div>
+                    
+                </div>
+            </div>
+        
+                
+            <div class="command-section">
+                <div class="section-title">Examples</div>
+                <div class="examples-list">
+                    
+                        <div class="example">
+                            <div class="example-command">/services </div>
+                            <div class="example-description">Execute the services command</div>
+                        </div>
+                    
+                </div>
+            </div>
+        
+            </div>
+        
+                        </div>
+                    </div>
+                </div>
+            
+                <div class="commands-container" id="administration">
+                    <div class="category-section">
+                        <div class="category-header">
+                            <div class="category-icon">
+                                <span class="material-icons">folder</span>
+                            </div>
+                            <div class="category-info">
+                                <h2>Administration</h2>
+                                <div class="category-meta">1 command</div>
+                            </div>
+                        </div>
+                        <div class="commands-grid">
+                            
+            <div class="command-card">
+                <div class="command-header">
+                    <div class="command-name">/roadmap-admin</div>
+                    <div class="command-badges">
+                        <span class="badge admin">Admin Only</span>
+                        
+                    </div>
+                </div>
+                <div class="command-description">Administrative commands for roadmap management</div>
+                
+            <div class="command-section">
+                <div class="section-title">Parameters</div>
+                <div class="parameters-list">
+                    
+                        <div class="parameter">
+                            <div class="parameter-header">
+                                <span class="parameter-name">phase_id</span>
+                                <span class="parameter-type">String</span>
+                            </div>
+                            <div class="parameter-description">Phase ID to update</div>
+                        </div>
+                    
+                        <div class="parameter">
+                            <div class="parameter-header">
+                                <span class="parameter-name">status</span>
+                                <span class="parameter-type">String</span>
+                            </div>
+                            <div class="parameter-description">New status for the phase</div>
+                        </div>
+                    
+                        <div class="parameter">
+                            <div class="parameter-header">
+                                <span class="parameter-name">notes</span>
+                                <span class="parameter-type">String</span>
+                            </div>
+                            <div class="parameter-description">Optional notes about the status change</div>
+                        </div>
+                    
+                        <div class="parameter">
+                            <div class="parameter-header">
+                                <span class="parameter-name">phase_id</span>
+                                <span class="parameter-type">String</span>
+                            </div>
+                            <div class="parameter-description">Phase that was completed</div>
+                        </div>
+                    
+                </div>
+            </div>
+        
+                
+            <div class="command-section">
+                <div class="section-title">Examples</div>
+                <div class="examples-list">
+                    
+                        <div class="example">
+                            <div class="example-command">/roadmap-admin </div>
+                            <div class="example-description">Execute the roadmap-admin command</div>
+                        </div>
+                    
+                </div>
+            </div>
+        
+            </div>
+        
+                        </div>
+                    </div>
+                </div>
+            
+                <div class="commands-container" id="verification">
+                    <div class="category-section">
+                        <div class="category-header">
+                            <div class="category-icon">
+                                <span class="material-icons">folder</span>
+                            </div>
+                            <div class="category-info">
+                                <h2>Verification</h2>
+                                <div class="category-meta">3 commands</div>
+                            </div>
+                        </div>
+                        <div class="commands-grid">
+                            
+            <div class="command-card">
+                <div class="command-header">
+                    <div class="command-name">/setup-verify</div>
+                    <div class="command-badges">
+                        <span class="badge admin">Admin Only</span>
+                        
+                    </div>
+                </div>
+                <div class="command-description">Set up the verification message with button (Admin only)</div>
+                
+                
+            <div class="command-section">
+                <div class="section-title">Examples</div>
+                <div class="examples-list">
+                    
+                        <div class="example">
+                            <div class="example-command">/setup-verify </div>
+                            <div class="example-description">Execute the setup-verify command</div>
+                        </div>
+                    
+                </div>
+            </div>
+        
+            </div>
+        
+            <div class="command-card">
+                <div class="command-header">
+                    <div class="command-name">/verify-reset</div>
+                    <div class="command-badges">
+                        <span class="badge admin">Admin Only</span>
+                        
+                    </div>
+                </div>
+                <div class="command-description">Reset verification status (Admin only)</div>
+                
+            <div class="command-section">
+                <div class="section-title">Parameters</div>
+                <div class="parameters-list">
+                    
+                        <div class="parameter">
+                            <div class="parameter-header">
+                                <span class="parameter-name">user</span>
+                                <span class="parameter-type">User</span>
+                            </div>
+                            <div class="parameter-description">User to reset (leave empty to reset yourself)</div>
+                        </div>
+                    
+                </div>
+            </div>
+        
+                
+            <div class="command-section">
+                <div class="section-title">Examples</div>
+                <div class="examples-list">
+                    
+                        <div class="example">
+                            <div class="example-command">/verify-reset </div>
+                            <div class="example-description">Execute the verify-reset command</div>
+                        </div>
+                    
+                </div>
+            </div>
+        
+            </div>
+        
+            <div class="command-card">
+                <div class="command-header">
+                    <div class="command-name">/verify</div>
+                    <div class="command-badges">
+                        <span class="badge public">Public</span>
+                        
+                    </div>
+                </div>
+                <div class="command-description">Start member verification process.</div>
+                
+                
+            <div class="command-section">
+                <div class="section-title">Examples</div>
+                <div class="examples-list">
+                    
+                        <div class="example">
+                            <div class="example-command">/verify </div>
+                            <div class="example-description">Execute the verify command</div>
+                        </div>
+                    
+                </div>
+            </div>
+        
+            </div>
+        
+                        </div>
+                    </div>
+                </div>
+            
+            
+            <!-- Empty State -->
+            <div class="empty-state" id="emptyState" style="display: none;">
+                <span class="material-icons">search_off</span>
+                <h3>No commands found</h3>
+                <p>Try adjusting your search terms or browse by category.</p>
+            </div>
+        </div>
+    </main>
+    
+    <script>
+        // Modern sidebar and navigation functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
+            const menuToggle = document.getElementById('menuToggle');
+            const searchInput = document.getElementById('searchInput');
+            const navItems = document.querySelectorAll('.nav-item');
+            const commandContainers = document.querySelectorAll('.commands-container');
+            const emptyState = document.getElementById('emptyState');
+            const pageTitle = document.getElementById('pageTitle');
+            const pageDescription = document.getElementById('pageDescription');
+            const currentSection = document.getElementById('currentSection');
+
+            // Mobile menu toggle
+            menuToggle.addEventListener('click', function() {
+                sidebar.classList.toggle('visible');
+                if (window.innerWidth <= 768) {
+                    mainContent.classList.toggle('expanded');
+                }
+            });
+
+            // Navigation
+            navItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    const section = this.dataset.section;
+                    
+                    // Update active states
+                    navItems.forEach(nav => nav.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Show/hide sections
+                    commandContainers.forEach(container => {
+                        container.classList.remove('active');
+                    });
+                    
+                    const targetContainer = document.getElementById(section);
+                    if (targetContainer) {
+                        targetContainer.classList.add('active');
+                        
+                        // Update page header
+                        if (section === 'overview') {
+                            pageTitle.textContent = 'Discord Bot Commands';
+                            pageDescription.textContent = 'Comprehensive documentation for all available Discord commands. Use the sidebar to browse by category or search for specific commands.';
+                            currentSection.textContent = 'All Commands';
+                        } else {
+                            const categoryName = section.charAt(0).toUpperCase() + section.slice(1);
+                            pageTitle.textContent = categoryName + ' Commands';
+                            pageDescription.textContent = 'Commands in the ' + categoryName + ' category.';
+                            currentSection.textContent = categoryName;
+                        }
+                    }
+                    
+                    // Hide mobile sidebar after selection
+                    if (window.innerWidth <= 768) {
+                        sidebar.classList.remove('visible');
+                    }
+                });
+            });
+
+            // Enhanced search functionality
+            let searchTimeout;
+            searchInput.addEventListener('input', function() {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    const searchTerm = this.value.toLowerCase().trim();
+                    const allCommands = document.querySelectorAll('.command-card');
+                    const categories = document.querySelectorAll('.category-section');
+                    let visibleCount = 0;
+
+                    if (searchTerm === '') {
+                        // Show all commands
+                        allCommands.forEach(command => {
+                            command.style.display = 'block';
+                            visibleCount++;
+                        });
+                        categories.forEach(category => {
+                            category.style.display = 'block';
+                        });
+                        emptyState.style.display = 'none';
+                    } else {
+                        // Filter commands
+                        allCommands.forEach(command => {
+                            const text = command.textContent.toLowerCase();
+                            const isVisible = text.includes(searchTerm);
+                            command.style.display = isVisible ? 'block' : 'none';
+                            if (isVisible) visibleCount++;
+                        });
+
+                        // Hide empty categories
+                        categories.forEach(category => {
+                            const visibleCommands = category.querySelectorAll('.command-card[style*="block"], .command-card:not([style])');
+                            category.style.display = visibleCommands.length > 0 ? 'block' : 'none';
+                        });
+
+                        // Show empty state if no results
+                        emptyState.style.display = visibleCount === 0 ? 'block' : 'none';
+                    }
+
+                    // Update page title with search results
+                    if (searchTerm && visibleCount > 0) {
+                        pageTitle.textContent = 'Search Results (' + visibleCount + ')';
+                        pageDescription.textContent = 'Commands matching "' + searchTerm + '"';
+                        currentSection.textContent = 'Search Results';
+                    } else if (searchTerm && visibleCount === 0) {
+                        pageTitle.textContent = 'No Results';
+                        pageDescription.textContent = 'No commands found matching "' + searchTerm + '"';
+                        currentSection.textContent = 'Search Results';
+                    }
+                }, 300);
+            });
+
+            // Responsive handling
+            function handleResize() {
+                if (window.innerWidth > 768) {
+                    sidebar.classList.remove('visible');
+                    mainContent.classList.remove('expanded');
+                } else {
+                    sidebar.classList.remove('visible');
+                }
+            }
+
+            window.addEventListener('resize', handleResize);
+            handleResize();
+
+            // Smooth scrolling for anchor links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            });
+
+            // Add keyboard shortcuts
+            document.addEventListener('keydown', function(e) {
+                // Focus search with Ctrl+K or Cmd+K
+                if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                    e.preventDefault();
+                    searchInput.focus();
+                }
+                
+                // Close sidebar with Escape
+                if (e.key === 'Escape') {
+                    sidebar.classList.remove('visible');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

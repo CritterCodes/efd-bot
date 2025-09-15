@@ -1,0 +1,73 @@
+{
+  "metadata": {
+    "title": "EFD Discord Bot - Admin Commands",
+    "description": "Administrative commands for bot management",
+    "version": "1.0.0",
+    "lastUpdated": "2025-09-15T01:00:00.000Z",
+    "commandCount": 2
+  },
+  "commands": [
+    {
+      "name": "gems admin",
+      "description": "Administrative GEMS management commands",
+      "category": "Administration",
+      "adminOnly": true,
+      "permissions": [
+        "Administrator"
+      ],
+      "usage": [
+        "/gems admin add @user amount \"reason\" - Add GEMS to a user's balance",
+        "/gems admin remove @user amount \"reason\" - Remove GEMS from a user's balance",
+        "/gems admin stats - View server-wide GEMS statistics"
+      ],
+      "examples": [
+        {
+          "command": "/gems admin add @user 100 \"Event participation reward\"",
+          "description": "Award 100 GEMS to a user for participating in an event"
+        },
+        {
+          "command": "/gems admin remove @user 50 \"Violation penalty\"",
+          "description": "Remove 50 GEMS from a user as a penalty"
+        },
+        {
+          "command": "/gems admin stats",
+          "description": "View total GEMS in circulation, top earners, and other statistics"
+        }
+      ],
+      "notes": [
+        "Requires Administrator permissions",
+        "All admin actions are logged",
+        "Use sparingly to maintain economy balance",
+        "Always include a clear reason for transparency"
+      ]
+    },
+    {
+      "name": "roadmap-admin",
+      "description": "Administrative roadmap management commands",
+      "category": "Administration", 
+      "adminOnly": true,
+      "permissions": [
+        "Administrator"
+      ],
+      "usage": [
+        "/roadmap-admin update phase_id status - Update roadmap phase status",
+        "/roadmap-admin refresh - Refresh roadmap data from source"
+      ],
+      "examples": [
+        {
+          "command": "/roadmap-admin update phase-1 completed",
+          "description": "Mark Phase 1 as completed in the roadmap"
+        },
+        {
+          "command": "/roadmap-admin refresh",
+          "description": "Refresh roadmap data and update Discord channels"
+        }
+      ],
+      "notes": [
+        "Requires Administrator permissions",
+        "Updates are reflected in roadmap channels",
+        "Use refresh after manual roadmap file changes"
+      ]
+    }
+  ]
+}

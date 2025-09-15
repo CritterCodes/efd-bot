@@ -15,7 +15,7 @@ export default {
     try {
       // Connect to database and find user
       await db.connect();
-      const discordUsers = db.getDb().collection('discordUsers');
+      const discordUsers = await db.discordUsers();
       const userData = await discordUsers.findOne({ discordId: targetUser.id });
       
       if (!userData) {

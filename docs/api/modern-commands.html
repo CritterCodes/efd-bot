@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EFD Discord Bot Commands</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #667eea;
+            --primary-dark: #5a6fd8;
+            --secondary-color: #764ba2;
+            --accent-color: #4facfe;
+            --success-color: #38a169;
+            --warning-color: #d69e2e;
+            --error-color: #e53e3e;
+            --text-primary: #1a202c;
+            --text-secondary: #4a5568;
+            --text-muted: #718096;
+            --bg-primary: #ffffff;
+            --bg-secondary: #f7fafc;
+            --bg-sidebar: #2d3748;
+            --bg-sidebar-hover: #4a5568;
+            --border-color: #e2e8f0;
+            --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 280px;
+            background: var(--bg-sidebar);
+            color: white;
+            padding: 2rem 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 1000;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-header {
+            padding: 0 2rem 2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+
+        .sidebar-subtitle {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-bottom: 1rem;
+        }
+
+        .search-box {
+            position: relative;
+            margin-bottom: 1rem;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 0.75rem 1rem 0.75rem 2.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: white;
+            font-size: 0.9rem;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .search-input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .search-input:focus {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: var(--primary-color);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 1.2rem;
+        }
+
+        .sidebar-nav {
+            padding: 2rem 0 0;
+        }
+
+        .nav-section {
+            margin-bottom: 2rem;
+        }
+
+        .nav-section-title {
+            padding: 0 2rem;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            opacity: 0.7;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .nav-item {
+            display: block;
+            padding: 0.75rem 2rem;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+            cursor: pointer;
+        }
+
+        .nav-item:hover {
+            background: var(--bg-sidebar-hover);
+            color: white;
+            border-left-color: var(--primary-color);
+        }
+
+        .nav-item.active {
+            background: rgba(102, 126, 234, 0.15);
+            color: white;
+            border-left-color: var(--primary-color);
+        }
+
+        .nav-item-icon {
+            margin-right: 0.75rem;
+            font-size: 1.1rem;
+        }
+
+        .stats-section {
+            padding: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: auto;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 2rem;
+            max-width: calc(100vw - 280px);
+        }
+
+        .header {
+            background: var(--bg-primary);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border-color);
+        }
+
+        .header-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .header-subtitle {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        .content-section {
+            background: var(--bg-primary);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border-color);
+        }
+
+        .command-card {
+            background: var(--bg-primary);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border-color);
+        }
+
+        .command-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .command-name {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            background: rgba(102, 126, 234, 0.1);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+        }
+
+        .command-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .badge-economy {
+            background: rgba(56, 161, 105, 0.1);
+            color: var(--success-color);
+        }
+
+        .badge-verification {
+            background: rgba(102, 126, 234, 0.1);
+            color: var(--primary-color);
+        }
+
+        .badge-general {
+            background: rgba(113, 128, 150, 0.1);
+            color: var(--text-muted);
+        }
+
+        .badge-public {
+            background: rgba(56, 161, 105, 0.1);
+            color: var(--success-color);
+        }
+
+        .command-description {
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+            line-height: 1.7;
+        }
+
+        .section {
+            margin-bottom: 2rem;
+        }
+
+        .section-title {
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .usage-list {
+            list-style: none;
+            margin-bottom: 1rem;
+        }
+
+        .usage-item {
+            font-family: 'JetBrains Mono', monospace;
+            background: rgba(102, 126, 234, 0.05);
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .examples-container {
+            background: rgba(56, 161, 105, 0.05);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border-left: 4px solid var(--success-color);
+        }
+
+        .example {
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: var(--bg-primary);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .example:last-child {
+            margin-bottom: 0;
+        }
+
+        .example-command {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--bg-secondary);
+            padding: 0.75rem;
+            border-radius: 6px;
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .example-description {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .notes-container {
+            background: rgba(214, 158, 46, 0.05);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border-left: 4px solid var(--warning-color);
+        }
+
+        .note {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+
+        .note:last-child {
+            margin-bottom: 0;
+        }
+
+        .note-icon {
+            color: var(--warning-color);
+            margin-top: 0.1rem;
+            flex-shrink: 0;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-muted);
+        }
+
+        .error {
+            background: rgba(229, 62, 62, 0.1);
+            color: var(--error-color);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border-left: 4px solid var(--error-color);
+            margin-bottom: 2rem;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+                max-width: 100vw;
+            }
+
+            .command-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+        }
+
+        /* Scrollbar Styling */
+        .sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .sidebar::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 3px;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h1 class="sidebar-title">EFD Bot Commands</h1>
+            <p class="sidebar-subtitle">User Command Documentation</p>
+            
+            <div class="search-box">
+                <span class="material-icons search-icon">search</span>
+                <input type="text" id="searchInput" class="search-input" placeholder="Search commands..." />
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <div class="nav-section">
+                <div class="nav-section-title">Overview</div>
+                <a href="#overview" class="nav-item active" data-section="overview">
+                    <span class="material-icons nav-item-icon">home</span>
+                    Documentation
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Categories</div>
+                <div id="categoryNav">
+                    <!-- Dynamically populated -->
+                </div>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Commands</div>
+                <div id="commandNav">
+                    <!-- Dynamically populated -->
+                </div>
+            </div>
+        </nav>
+
+        <div class="stats-section">
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-number" id="commandCount">-</div>
+                    <div class="stat-label">Commands</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="categoryCount">-</div>
+                    <div class="stat-label">Categories</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div id="content">
+            <div class="loading">
+                <span class="material-icons" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;">refresh</span>
+                <div>Loading commands...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let allCommands = [];
+        let currentSection = 'overview';
+
+        async function loadCommands() {
+            try {
+                const response = await fetch('/api/docs/commands');
+                const data = await response.json();
+                allCommands = data.commands || [];
+                
+                updateStats(data);
+                populateNavigation();
+                showOverview();
+                
+            } catch (error) {
+                document.getElementById('content').innerHTML = `
+                    <div class="error">
+                        <strong>Error loading commands:</strong> ${error.message}
+                        <br><br>
+                        Make sure the server is running and try refreshing the page.
+                    </div>
+                `;
+            }
+        }
+
+        function updateStats(data) {
+            document.getElementById('commandCount').textContent = data.metadata?.commandCount || allCommands.length;
+            const categories = [...new Set(allCommands.map(cmd => cmd.category))];
+            document.getElementById('categoryCount').textContent = categories.length;
+        }
+
+        function populateNavigation() {
+            const categories = [...new Set(allCommands.map(cmd => cmd.category))];
+            
+            // Populate category navigation
+            const categoryNav = document.getElementById('categoryNav');
+            categoryNav.innerHTML = categories.map(category => `
+                <a href="#category-${category.toLowerCase()}" class="nav-item" data-section="category" data-category="${category}">
+                    <span class="material-icons nav-item-icon">${getCategoryIcon(category)}</span>
+                    ${category}
+                </a>
+            `).join('');
+
+            // Populate command navigation
+            const commandNav = document.getElementById('commandNav');
+            commandNav.innerHTML = allCommands.map(command => `
+                <a href="#command-${command.name}" class="nav-item" data-section="command" data-command="${command.name}">
+                    <span class="material-icons nav-item-icon">code</span>
+                    /${command.name}
+                </a>
+            `).join('');
+
+            // Add click handlers
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.addEventListener('click', handleNavClick);
+            });
+        }
+
+        function getCategoryIcon(category) {
+            const icons = {
+                'Economy': 'attach_money',
+                'Verification': 'verified_user',
+                'General': 'help',
+                'Administration': 'admin_panel_settings'
+            };
+            return icons[category] || 'code';
+        }
+
+        function handleNavClick(e) {
+            e.preventDefault();
+            
+            // Update active state
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            e.currentTarget.classList.add('active');
+
+            const section = e.currentTarget.dataset.section;
+            const category = e.currentTarget.dataset.category;
+            const command = e.currentTarget.dataset.command;
+
+            if (section === 'overview') {
+                showOverview();
+            } else if (section === 'category') {
+                showCategory(category);
+            } else if (section === 'command') {
+                showCommand(command);
+            }
+        }
+
+        function showOverview() {
+            currentSection = 'overview';
+            const content = document.getElementById('content');
+            
+            content.innerHTML = `
+                <div class="header">
+                    <h1 class="header-title">Welcome to EFD Bot Documentation</h1>
+                    <p class="header-subtitle">Complete guide to using the EFD Discord bot commands</p>
+                </div>
+
+                <div class="content-section">
+                    <h2>Getting Started</h2>
+                    <p>The EFD Discord bot provides GEMS currency system, verification features, and utility commands. Here's what you need to know:</p>
+                    
+                    <div style="margin-top: 2rem;">
+                        <h3 style="margin-bottom: 1rem;">📦 GEMS Currency System</h3>
+                        <p style="margin-bottom: 1rem;">GEMS are the digital currency used in our collector community. You can earn them through verification and use them to tip other members.</p>
+                        
+                        <h3 style="margin-bottom: 1rem;">✅ Verification Process</h3>
+                        <p style="margin-bottom: 1rem;">Verify your collector status to earn GEMS and access special features. Different collector types earn different amounts.</p>
+                        
+                        <h3 style="margin-bottom: 1rem;">🚀 Quick Start</h3>
+                        <p>Start by running <code>/verify</code> to verify your collector status and earn your first GEMS!</p>
+                    </div>
+                </div>
+
+                <div class="content-section">
+                    <h2>Available Categories</h2>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; margin-top: 1rem;">
+                        ${[...new Set(allCommands.map(cmd => cmd.category))].map(category => {
+                            const categoryCommands = allCommands.filter(cmd => cmd.category === category);
+                            return `
+                                <div style="padding: 1.5rem; background: var(--bg-secondary); border-radius: 8px; border: 1px solid var(--border-color);">
+                                    <h3 style="margin-bottom: 0.5rem; color: var(--primary-color);">${category}</h3>
+                                    <p style="color: var(--text-muted); margin-bottom: 1rem;">${categoryCommands.length} command${categoryCommands.length > 1 ? 's' : ''}</p>
+                                    <div style="font-size: 0.9rem;">
+                                        ${categoryCommands.map(cmd => `<div>/${cmd.name}</div>`).join('')}
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function showCategory(category) {
+            currentSection = 'category';
+            const categoryCommands = allCommands.filter(cmd => cmd.category === category);
+            const content = document.getElementById('content');
+            
+            content.innerHTML = `
+                <div class="header">
+                    <h1 class="header-title">${category} Commands</h1>
+                    <p class="header-subtitle">${categoryCommands.length} command${categoryCommands.length > 1 ? 's' : ''} in this category</p>
+                </div>
+
+                ${categoryCommands.map(command => renderCommandCard(command)).join('')}
+            `;
+        }
+
+        function showCommand(commandName) {
+            currentSection = 'command';
+            const command = allCommands.find(cmd => cmd.name === commandName);
+            if (!command) return;
+
+            const content = document.getElementById('content');
+            content.innerHTML = renderCommandCard(command);
+        }
+
+        function renderCommandCard(command) {
+            return `
+                <div class="command-card">
+                    <div class="command-header">
+                        <span class="command-name">/${command.name}</span>
+                        <span class="command-badge badge-${command.category.toLowerCase()}">${command.category}</span>
+                        <span class="command-badge badge-public">Public</span>
+                    </div>
+                    
+                    <div class="command-description">
+                        ${command.description}
+                    </div>
+
+                    ${command.usage && command.usage.length > 0 ? `
+                        <div class="section">
+                            <div class="section-title">Usage</div>
+                            <ul class="usage-list">
+                                ${command.usage.map(usage => `<li class="usage-item">${usage}</li>`).join('')}
+                            </ul>
+                        </div>
+                    ` : ''}
+
+                    ${command.examples && command.examples.length > 0 ? `
+                        <div class="section">
+                            <div class="section-title">Examples</div>
+                            <div class="examples-container">
+                                ${command.examples.map(example => `
+                                    <div class="example">
+                                        <div class="example-command">${example.command}</div>
+                                        <div class="example-description">${example.description}</div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+
+                    ${command.notes && command.notes.length > 0 ? `
+                        <div class="section">
+                            <div class="section-title">Important Notes</div>
+                            <div class="notes-container">
+                                ${command.notes.map(note => `
+                                    <div class="note">
+                                        <span class="material-icons note-icon">info</span>
+                                        <span>${note}</span>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+
+        function filterCommands(searchTerm) {
+            const filtered = allCommands.filter(command => 
+                command.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                command.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                command.category.toLowerCase().includes(searchTerm.toLowerCase())
+            );
+
+            if (searchTerm.trim() === '') {
+                showOverview();
+                return;
+            }
+
+            const content = document.getElementById('content');
+            content.innerHTML = `
+                <div class="header">
+                    <h1 class="header-title">Search Results</h1>
+                    <p class="header-subtitle">Found ${filtered.length} command${filtered.length !== 1 ? 's' : ''} matching "${searchTerm}"</p>
+                </div>
+
+                ${filtered.length > 0 ? 
+                    filtered.map(command => renderCommandCard(command)).join('') : 
+                    '<div class="content-section"><p>No commands found matching your search.</p></div>'
+                }
+            `;
+        }
+
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            filterCommands(e.target.value);
+        });
+
+        // Load commands when page loads
+        loadCommands();
+    </script>
+</body>
+</html>
