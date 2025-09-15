@@ -23,6 +23,11 @@ class RoadmapTracker {
      * This should be run once to populate the database from our documentation
      */
     async initializeRoadmapData() {
+        console.log('📖 Syncing roadmap from documentation files...');
+        
+        // Read phase status from markdown files
+        const phaseStatuses = await this.parsePhaseFiles();
+        
         const phases = [
             {
                 phaseId: 'phase-0',
@@ -46,8 +51,9 @@ class RoadmapTracker {
                 phaseId: 'phase-1',
                 title: 'GEMS Currency System',
                 description: 'Implement the core economy system',
-                status: 'in-planning',
+                status: phaseStatuses['phase-1'] || 'planned',
                 startDate: new Date('2025-09-14'),
+                completedDate: phaseStatuses['phase-1'] === 'completed' ? new Date('2025-09-14') : null,
                 targetDate: new Date('2025-10-01'),
                 priority: 'high',
                 dependencies: ['phase-0'],
@@ -63,7 +69,7 @@ class RoadmapTracker {
                 phaseId: 'phase-2',
                 title: 'Advanced Verification System',
                 description: 'Photo-based jewelry verification',
-                status: 'planned',
+                status: phaseStatuses['phase-2'] || 'planned',
                 priority: 'high',
                 dependencies: ['phase-1'],
                 objectives: [
@@ -77,7 +83,7 @@ class RoadmapTracker {
                 phaseId: 'phase-3',
                 title: 'Spotlight System',
                 description: 'Weekly member recognition',
-                status: 'planned',
+                status: phaseStatuses['phase-3'] || 'planned',
                 priority: 'medium',
                 dependencies: ['phase-1'],
                 objectives: [
@@ -91,7 +97,7 @@ class RoadmapTracker {
                 phaseId: 'phase-4',
                 title: 'Role Progression System',
                 description: 'Dynamic role advancement',
-                status: 'planned',
+                status: phaseStatuses['phase-4'] || 'planned',
                 priority: 'medium',
                 dependencies: ['phase-1'],
                 objectives: [
@@ -228,14 +234,34 @@ class RoadmapTracker {
      * Calculate phase progress percentage
      */
     async calculatePhaseProgress(phaseId) {
+        // First check if the phase itself is completed
+        const phase = await this.getPhase(phaseId);
+        if (!phase) return 0;
+        
+        // If phase is completed, return 100%
+        if (phase.status === 'completed') {
+            return 100;
+        }
+        
+        // Otherwise, check individual tasks if they exist
         const tasksCollection = this.db.collection(Constants.ROADMAP_TASKS_COLLECTION);
         const totalTasks = await tasksCollection.countDocuments({ phaseId });
+        
+        if (totalTasks === 0) {
+            // No tasks tracked - determine progress based on status
+            switch (phase.status) {
+                case 'completed': return 100;
+                case 'in-progress': return 50;
+                case 'in-planning': return 25;
+                default: return 0;
+            }
+        }
+        
         const completedTasks = await tasksCollection.countDocuments({ 
             phaseId, 
             status: 'completed' 
         });
 
-        if (totalTasks === 0) return 0;
         return Math.round((completedTasks / totalTasks) * 100);
     }
 
@@ -345,8 +371,66 @@ class RoadmapTracker {
             footer: {
                 text: 'Thank you for your patience during development!'
             },
-            timestamp: new Date().toISOString()
+            timestamp: new Date()
         };
+    }
+
+    /**
+     * Parse phase tracker markdown files to detect completion status
+     */
+    async parsePhaseFiles() {
+        const fs = await import('fs');
+        const path = await import('path');
+        const { fileURLToPath } = await import('url');
+        
+        const __filename = fileURLToPath(import.meta.url);
+        const __dirname = path.dirname(__filename);
+        const phasesDir = path.join(__dirname, '../../docs/phases');
+        
+        const phaseStatuses = {};
+        
+        try {
+            // Check if phases directory exists
+            if (!fs.existsSync(phasesDir)) {
+                console.warn('Phases directory not found, using default statuses');
+                return phaseStatuses;
+            }
+            
+            const files = fs.readdirSync(phasesDir);
+            
+            for (const file of files) {
+                if (file.endsWith('.md')) {
+                    const filePath = path.join(phasesDir, file);
+                    const content = fs.readFileSync(filePath, 'utf-8');
+                    
+                    // Extract phase ID from filename (e.g., PHASE_1_GEMS.md -> phase-1)
+                    const phaseMatch = file.match(/PHASE_(\d+)/);
+                    if (!phaseMatch) continue;
+                    
+                    const phaseId = `phase-${phaseMatch[1]}`;
+                    
+                    // Parse status from markdown content
+                    if (content.includes('✅ **PHASE COMPLETED**') || content.includes('✅ PHASE COMPLETED')) {
+                        phaseStatuses[phaseId] = 'completed';
+                        console.log(`📋 Detected ${phaseId}: completed`);
+                    } else if (content.includes('🚧 IN PROGRESS') || content.includes('🚧 **IN PROGRESS**')) {
+                        phaseStatuses[phaseId] = 'in-progress';
+                        console.log(`📋 Detected ${phaseId}: in-progress`);
+                    } else if (content.includes('🚧 IN PLANNING') || content.includes('🚧 **IN PLANNING**')) {
+                        phaseStatuses[phaseId] = 'in-planning';
+                        console.log(`📋 Detected ${phaseId}: in-planning`);
+                    } else {
+                        phaseStatuses[phaseId] = 'planned';
+                        console.log(`📋 Detected ${phaseId}: planned (default)`);
+                    }
+                }
+            }
+            
+        } catch (error) {
+            console.warn('Error parsing phase files:', error.message);
+        }
+        
+        return phaseStatuses;
     }
 }
 

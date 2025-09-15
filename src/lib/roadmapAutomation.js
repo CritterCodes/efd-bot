@@ -28,6 +28,29 @@ class RoadmapAutomation {
     }
 
     /**
+     * Sync roadmap data from markdown documentation files on startup
+     */
+    async syncFromMarkdownFiles() {
+        try {
+            console.log('📖 Reading phase tracking files...');
+            
+            // Auto-sync from markdown files
+            await this.roadmapTracker.initializeRoadmapData();
+            
+            // Update Discord channel if configured
+            if (this.settings.autoUpdateEnabled && this.settings.roadmapChannelId) {
+                console.log('🔄 Updating Discord roadmap display...');
+                await this.updateRoadmapDisplay();
+            }
+            
+            console.log('✅ Roadmap auto-sync completed');
+            
+        } catch (error) {
+            console.error('❌ Error during roadmap auto-sync:', error);
+        }
+    }
+
+    /**
      * Load automation settings from database
      */
     async loadSettings() {

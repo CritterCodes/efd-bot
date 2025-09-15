@@ -43,6 +43,10 @@ client.once(Events.ClientReady, async () => {
   await roadmapAutomation.init();
   client.roadmapAutomation = roadmapAutomation;
   
+  // Auto-sync roadmap from markdown files on startup
+  console.log('🔄 Auto-syncing roadmap from documentation files...');
+  await roadmapAutomation.syncFromMarkdownFiles();
+  
   // Start webhook server
   setupExpressServer(client);
 });
